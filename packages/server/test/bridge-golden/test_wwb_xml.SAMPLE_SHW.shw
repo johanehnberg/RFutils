@@ -1,0 +1,20 @@
+<show version="1.0" appl_version="7.8.2.63">
+    <inventory version="2.1">
+        <device>
+            <manufacturer type="10">Shure</manufacturer>
+            <model type="10">AD4Q-A</model>
+            <band type="10">G56</band>
+            <zone type="12">Default</zone>
+            <channel number="1">
+                <channel_name type="10"><![CDATA[Lead Vocal]]></channel_name>
+                <frequency type="3">470150</frequency>
+                <group_channel type="10">1,2</group_channel>
+            </channel>
+            <channel number="2">
+                <channel_name type="10"><![CDATA[Host Mic]]></channel_name>
+                <frequency type="3">0</frequency>
+                <group_channel type="10">--,--</group_channel>
+            </channel>
+        </device>
+    </inventory>
+</show>

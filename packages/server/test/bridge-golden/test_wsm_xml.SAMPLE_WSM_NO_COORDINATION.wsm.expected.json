@@ -1,0 +1,14 @@
+{
+  "input": "test_wsm_xml.SAMPLE_WSM_NO_COORDINATION.wsm",
+  "format": "wsm-xml",
+  "list": {
+    "sourceFormat": "wsm-project",
+    "channels": []
+  },
+  "outputs": {
+    "wwb-frequency-list": "\n",
+    "wwb-inventory-csv": "Name,Frequency,Group,Channel,Type,Manufacturer,Notes\r\n",
+    "wsm-csv": "name;type;frequency;tolerance;minfrequency;maxfrequency;priority;squelchlevel\r\n",
+    "generic-csv": "Name,Frequency (MHz),Zone,Group,Channel,Type,Manufacturer,Notes\r\n"
+  }
+}

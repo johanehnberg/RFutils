@@ -1,0 +1,27 @@
+{
+  "input": "test_detect.wsm_csv.csv",
+  "format": "wsm",
+  "list": {
+    "sourceFormat": "wsm-csv",
+    "channels": [
+      {
+        "name": "Frequency 001",
+        "frequencyMhz": 510.1,
+        "group": null,
+        "channel": null,
+        "deviceType": "0",
+        "manufacturer": null,
+        "notes": null,
+        "zone": null,
+        "inclusionGroup": null,
+        "isBackup": null
+      }
+    ]
+  },
+  "outputs": {
+    "wwb-frequency-list": "510.100\n",
+    "wwb-inventory-csv": "Name,Frequency,Group,Channel,Type,Manufacturer,Notes\r\nFrequency 001,510.100,,,0,,\r\n",
+    "wsm-csv": "name;type;frequency;tolerance;minfrequency;maxfrequency;priority;squelchlevel\r\nFrequency 001;0;510100;0;510100;510100;;\r\n",
+    "generic-csv": "Name,Frequency (MHz),Zone,Group,Channel,Type,Manufacturer,Notes\r\nFrequency 001,510.100,,,,0,,\r\n"
+  }
+}

@@ -1,0 +1,22 @@
+<!DOCTYPE WSM>
+<WSM Version="2.0" AppVersion="4.9.0.13">
+    <FrequencyManager RFUnit="2">
+        <Devices>
+            <Device Version="1.0" Mode="0" UniqueId="1" Type="STANDARD">
+                <Name>EW-DX 1</Name>
+                <StationaryDeviceType>EW-DX EM2/EM4 (LD off)</StationaryDeviceType>
+                <PortableDeviceType>EW-DX SKM</PortableDeviceType>
+                <Frequency>470200</Frequency>
+                <AllocatedFrequency>470800</AllocatedFrequency>
+                <SquelchDescription>-87 dBm</SquelchDescription>
+            </Device>
+            <Device Version="1.0" Mode="0" UniqueId="2" Type="STANDARD">
+                <Name>EW-DX 2</Name>
+                <StationaryDeviceType>EW-DX EM2/EM4 (LD off)</StationaryDeviceType>
+                <PortableDeviceType>EW-DX SKM</PortableDeviceType>
+                <Frequency>470200</Frequency>
+                <AllocatedFrequency></AllocatedFrequency>
+            </Device>
+        </Devices>
+    </FrequencyManager>
+</WSM>

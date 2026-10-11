@@ -1,0 +1,63 @@
+{
+  "input": "test_wwb_report.SAMPLE_REPORT.csv",
+  "format": "wwb-report",
+  "list": {
+    "sourceFormat": "wwb-report-csv",
+    "channels": [
+      {
+        "name": "Shure",
+        "frequencyMhz": 471.95,
+        "group": null,
+        "channel": null,
+        "deviceType": "ADPSM/Narrowband (G57)",
+        "manufacturer": null,
+        "notes": null,
+        "zone": "Default",
+        "inclusionGroup": "Group 1",
+        "isBackup": false
+      },
+      {
+        "name": "Shure",
+        "frequencyMhz": 475.025,
+        "group": "1",
+        "channel": "2",
+        "deviceType": "AD/Standard (G56)",
+        "manufacturer": null,
+        "notes": null,
+        "zone": "Default",
+        "inclusionGroup": "No Inclusion Group",
+        "isBackup": false
+      },
+      {
+        "name": "Backup 489.500",
+        "frequencyMhz": 489.5,
+        "group": null,
+        "channel": null,
+        "deviceType": "AD/Standard (G56)",
+        "manufacturer": null,
+        "notes": null,
+        "zone": "Default",
+        "inclusionGroup": "No Inclusion Group",
+        "isBackup": true
+      },
+      {
+        "name": "Shure",
+        "frequencyMhz": 471.475,
+        "group": null,
+        "channel": null,
+        "deviceType": "AD/Standard (G56)",
+        "manufacturer": null,
+        "notes": null,
+        "zone": "Zone 1",
+        "inclusionGroup": "No Inclusion Group",
+        "isBackup": false
+      }
+    ]
+  },
+  "outputs": {
+    "wwb-frequency-list": "471.950\n475.025\n489.500\n471.475\n",
+    "wwb-inventory-csv": "Name,Frequency,Group,Channel,Type,Manufacturer,Notes\r\nShure,471.950,,,ADPSM/Narrowband (G57),,\r\nShure,475.025,1,2,AD/Standard (G56),,\r\nBackup 489.500,489.500,,,AD/Standard (G56),,\r\nShure,471.475,,,AD/Standard (G56),,\r\n",
+    "wsm-csv": "name;type;frequency;tolerance;minfrequency;maxfrequency;priority;squelchlevel\r\nShure;ADPSM/Narrowband (G57);471950;0;471950;471950;;\r\nShure;AD/Standard (G56);475025;0;475025;475025;;\r\nBackup 489.500;AD/Standard (G56);489500;0;489500;489500;;\r\nShure;AD/Standard (G56);471475;0;471475;471475;;\r\n",
+    "generic-csv": "Name,Frequency (MHz),Zone,Group,Channel,Type,Manufacturer,Notes\r\nShure,471.950,Default,,,ADPSM/Narrowband (G57),,\r\nShure,475.025,Default,1,2,AD/Standard (G56),,\r\nBackup 489.500,489.500,Default,,,AD/Standard (G56),,\r\nShure,471.475,Zone 1,,,AD/Standard (G56),,\r\n"
+  }
+}

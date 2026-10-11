@@ -1,0 +1,63 @@
+{
+  "input": "sample_wwb_frequency_list.txt",
+  "format": "wwb-frequency-list",
+  "list": {
+    "sourceFormat": "wwb-frequency-list",
+    "channels": [
+      {
+        "name": "CH 1",
+        "frequencyMhz": 606.25,
+        "group": null,
+        "channel": null,
+        "deviceType": null,
+        "manufacturer": null,
+        "notes": null,
+        "zone": null,
+        "inclusionGroup": null,
+        "isBackup": null
+      },
+      {
+        "name": "CH 2",
+        "frequencyMhz": 614.1,
+        "group": null,
+        "channel": null,
+        "deviceType": null,
+        "manufacturer": null,
+        "notes": null,
+        "zone": null,
+        "inclusionGroup": null,
+        "isBackup": null
+      },
+      {
+        "name": "CH 3",
+        "frequencyMhz": 622.375,
+        "group": null,
+        "channel": null,
+        "deviceType": null,
+        "manufacturer": null,
+        "notes": null,
+        "zone": null,
+        "inclusionGroup": null,
+        "isBackup": null
+      },
+      {
+        "name": "CH 4",
+        "frequencyMhz": 630.9,
+        "group": null,
+        "channel": null,
+        "deviceType": null,
+        "manufacturer": null,
+        "notes": null,
+        "zone": null,
+        "inclusionGroup": null,
+        "isBackup": null
+      }
+    ]
+  },
+  "outputs": {
+    "wwb-frequency-list": "606.250\n614.100\n622.375\n630.900\n",
+    "wwb-inventory-csv": "Name,Frequency,Group,Channel,Type,Manufacturer,Notes\r\nCH 1,606.250,,,,,\r\nCH 2,614.100,,,,,\r\nCH 3,622.375,,,,,\r\nCH 4,630.900,,,,,\r\n",
+    "wsm-csv": "name;type;frequency;tolerance;minfrequency;maxfrequency;priority;squelchlevel\r\nCH 1;0;606250;0;606250;606250;;\r\nCH 2;0;614100;0;614100;614100;;\r\nCH 3;0;622375;0;622375;622375;;\r\nCH 4;0;630900;0;630900;630900;;\r\n",
+    "generic-csv": "Name,Frequency (MHz),Zone,Group,Channel,Type,Manufacturer,Notes\r\nCH 1,606.250,,,,,,\r\nCH 2,614.100,,,,,,\r\nCH 3,622.375,,,,,,\r\nCH 4,630.900,,,,,,\r\n"
+  }
+}

@@ -1,0 +1,5 @@
+Name;Type;Frequency;Tolerance;Lower frequency;Upper frequency;Priority;Noise level
+Lead Vocal;Discrete;606250;0;606250;606250;1;-90
+Host Mic;Discrete;614100;0;614100;614100;1;-90
+Guitar IEM;Discrete;622375;0;622375;622375;2;-88
+Handheld 4;Discrete;630900;0;630900;630900;2;-88

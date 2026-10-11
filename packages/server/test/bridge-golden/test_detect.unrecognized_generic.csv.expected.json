@@ -1,0 +1,27 @@
+{
+  "input": "test_detect.unrecognized_generic.csv",
+  "format": "generic",
+  "list": {
+    "sourceFormat": "generic-csv",
+    "channels": [
+      {
+        "name": "Lead Vocal",
+        "frequencyMhz": 606.25,
+        "group": null,
+        "channel": "1",
+        "deviceType": "ULXD2",
+        "manufacturer": "Shure",
+        "notes": null,
+        "zone": "A",
+        "inclusionGroup": null,
+        "isBackup": null
+      }
+    ]
+  },
+  "outputs": {
+    "wwb-frequency-list": "606.250\n",
+    "wwb-inventory-csv": "Name,Frequency,Group,Channel,Type,Manufacturer,Notes\r\nLead Vocal,606.250,,1,ULXD2,Shure,\r\n",
+    "wsm-csv": "name;type;frequency;tolerance;minfrequency;maxfrequency;priority;squelchlevel\r\nLead Vocal;ULXD2;606250;0;606250;606250;;\r\n",
+    "generic-csv": "Name,Frequency (MHz),Zone,Group,Channel,Type,Manufacturer,Notes\r\nLead Vocal,606.250,A,,1,ULXD2,Shure,\r\n"
+  }
+}

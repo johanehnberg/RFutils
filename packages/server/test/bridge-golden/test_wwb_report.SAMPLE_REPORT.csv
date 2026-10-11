@@ -1,0 +1,42 @@
+demo
+
+Coordination report
+
+RF zone: Default
+
+Primary frequencies (2)
+Type,Band,Channel name,Group & Channel,Frequency,
+Group 1 (1),,,,,
+ADPSM/Narrowband,G57,Shure,G:-- Ch:--,471.950 MHz,
+No Inclusion Group (1),,,,,
+AD/Standard,G56,Shure,G:1 Ch:2,475.025 MHz,
+
+Backup frequencies (1)
+
+Type,Band,Source,Group & Channel,Frequency,
+No Inclusion Group (1),,,,,
+AD/Standard,G56,,G:-- Ch:--,489.500 MHz,
+
+RF zone: Zone 1
+
+Primary frequencies (1)
+Type,Band,Channel name,Group & Channel,Frequency,
+No Inclusion Group (1),,,,,
+AD/Standard,G56,Shure,G:-- Ch:--,471.475 MHz,
+
+Frequency coordination parameters
+
+Inclusions
+
+Inclusion list: List 1
+
+Inclusion group,Type,Frequency,TV,
+Group 1,Single,471.950 MHz,,
+
+Exclusions
+
+Active TV channels (0)
+
+Other exclusions (0)
+
+Generated using Wireless Workbench 7.8.2.63

@@ -5,6 +5,8 @@
  * is a full set, e.g. one show or one venue's plan.
  */
 
+import { formatMhz } from './formats/freqParse.js';
+
 export interface Channel {
   name: string;
   frequencyMhz: number;
@@ -24,8 +26,9 @@ export interface CoordinationList {
   sourceFormat?: string | null;
 }
 
+/** Three-decimal MHz, rounded exactly as wsm-wwb-bridge rounds it (see formatMhz). */
 export function displayFrequency(ch: Channel): string {
-  return ch.frequencyMhz.toFixed(3);
+  return formatMhz(ch.frequencyMhz);
 }
 
 export function emptyList(sourceFormat?: string): CoordinationList {

@@ -1,0 +1,28 @@
+<coord_workspace_ex_root version="0.1">
+    <coordinated_data_root>
+        <mic_channels units="khz" count="2">
+            <freq_entry>
+                <compat_key>
+                    <zone>Default</zone>
+                    <series>ADPSM</series>
+                    <mode>Narrowband</mode>
+                </compat_key>
+                <value>471950</value>
+                <gr_ch>G:-- Ch:--</gr_ch>
+                <manufacturer>Shure</manufacturer>
+                <source_name>Shure</source_name>
+            </freq_entry>
+            <freq_entry>
+                <compat_key>
+                    <zone>Default</zone>
+                    <series>AD</series>
+                    <mode>Standard</mode>
+                </compat_key>
+                <value>475025</value>
+                <gr_ch>G:1 Ch:2</gr_ch>
+                <manufacturer>Shure</manufacturer>
+                <source_name>Shure</source_name>
+            </freq_entry>
+        </mic_channels>
+    </coordinated_data_root>
+</coord_workspace_ex_root>

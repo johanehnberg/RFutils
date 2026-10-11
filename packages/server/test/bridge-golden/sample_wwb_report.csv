@@ -1,0 +1,21 @@
+demo
+
+Coordination report
+
+RF zone: Main Stage
+
+Primary frequencies (2)
+Type,Band,Channel name,Group & Channel,Frequency,
+Group 1 (2),,,,,
+ULXD4Q,G50,Lead Vocal,G:1 Ch:1,606.250 MHz,
+ULXD4Q,G50,Host Mic,G:1 Ch:2,614.100 MHz,
+
+RF zone: Monitor World
+
+Primary frequencies (2)
+Type,Band,Channel name,Group & Channel,Frequency,
+Group 2 (2),,,,,
+PSM1000,H50,Guitar IEM,G:2 Ch:1,622.375 MHz,
+PSM1000,H50,Drummer IEM,G:2 Ch:2,630.900 MHz,
+
+Generated using Wireless Workbench 7.8.2.63

@@ -10,7 +10,7 @@
  */
 
 import type { Channel, CoordinationList } from '../index.js';
-import { parseWwbGroupChannel } from './freqParse.js';
+import { formatMhz, parseWwbGroupChannel } from './freqParse.js';
 import { parseCsvNonEmpty } from './csvUtil.js';
 
 const GROUP_HEADER_RE = /^(.+?)\s*\(\d+\)$/;
@@ -69,7 +69,7 @@ export function readWwbReportCsv(text: string): CoordinationList {
       const isBackup = section === 'backup';
       const name =
         nameOrSource ||
-        (isBackup ? `Backup ${freqMhz.toFixed(3)}` : `CH ${channels.length + 1}`);
+        (isBackup ? `Backup ${formatMhz(freqMhz)}` : `CH ${channels.length + 1}`);
       const deviceType =
         type_ && band ? `${type_} (${band})` : type_ || band || null;
       channels.push({

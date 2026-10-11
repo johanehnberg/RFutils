@@ -1,0 +1,27 @@
+{
+  "input": "test_wwb_xml.SAMPLE_SHW_NO_INVENTORY.shw",
+  "format": "wwb-xml",
+  "list": {
+    "sourceFormat": "wwb-cws",
+    "channels": [
+      {
+        "name": "Shure",
+        "frequencyMhz": 471.475,
+        "group": null,
+        "channel": null,
+        "deviceType": "AD/Standard",
+        "manufacturer": "Shure",
+        "notes": null,
+        "zone": "Zone 1",
+        "inclusionGroup": null,
+        "isBackup": null
+      }
+    ]
+  },
+  "outputs": {
+    "wwb-frequency-list": "471.475\n",
+    "wwb-inventory-csv": "Name,Frequency,Group,Channel,Type,Manufacturer,Notes\r\nShure,471.475,,,AD/Standard,Shure,\r\n",
+    "wsm-csv": "name;type;frequency;tolerance;minfrequency;maxfrequency;priority;squelchlevel\r\nShure;AD/Standard;471475;0;471475;471475;;\r\n",
+    "generic-csv": "Name,Frequency (MHz),Zone,Group,Channel,Type,Manufacturer,Notes\r\nShure,471.475,Zone 1,,,AD/Standard,Shure,\r\n"
+  }
+}

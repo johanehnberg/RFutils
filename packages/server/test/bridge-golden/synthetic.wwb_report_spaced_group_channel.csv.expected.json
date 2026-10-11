@@ -1,0 +1,51 @@
+{
+  "input": "synthetic.wwb_report_spaced_group_channel.csv",
+  "format": "wwb-report",
+  "list": {
+    "sourceFormat": "wwb-report-csv",
+    "channels": [
+      {
+        "name": "Lead Vox",
+        "frequencyMhz": 512.0625,
+        "group": "01",
+        "channel": "05",
+        "deviceType": "AD/Standard (G56)",
+        "manufacturer": null,
+        "notes": null,
+        "zone": "Stage",
+        "inclusionGroup": "No Inclusion Group",
+        "isBackup": false
+      },
+      {
+        "name": "CH 2",
+        "frequencyMhz": 470.1875,
+        "group": "2",
+        "channel": "7",
+        "deviceType": "AD/Standard (G56)",
+        "manufacturer": null,
+        "notes": null,
+        "zone": "Stage",
+        "inclusionGroup": "No Inclusion Group",
+        "isBackup": false
+      },
+      {
+        "name": "Backup 606.312",
+        "frequencyMhz": 606.3125,
+        "group": null,
+        "channel": null,
+        "deviceType": "AD/Standard (G56)",
+        "manufacturer": null,
+        "notes": null,
+        "zone": "Stage",
+        "inclusionGroup": "No Inclusion Group",
+        "isBackup": true
+      }
+    ]
+  },
+  "outputs": {
+    "wwb-frequency-list": "512.062\n470.188\n606.312\n",
+    "wwb-inventory-csv": "Name,Frequency,Group,Channel,Type,Manufacturer,Notes\r\nLead Vox,512.062,01,05,AD/Standard (G56),,\r\nCH 2,470.188,2,7,AD/Standard (G56),,\r\nBackup 606.312,606.312,,,AD/Standard (G56),,\r\n",
+    "wsm-csv": "name;type;frequency;tolerance;minfrequency;maxfrequency;priority;squelchlevel\r\nLead Vox;AD/Standard (G56);512062;0;512062;512062;;\r\nCH 2;AD/Standard (G56);470188;0;470188;470188;;\r\nBackup 606.312;AD/Standard (G56);606312;0;606312;606312;;\r\n",
+    "generic-csv": "Name,Frequency (MHz),Zone,Group,Channel,Type,Manufacturer,Notes\r\nLead Vox,512.062,Stage,01,05,AD/Standard (G56),,\r\nCH 2,470.188,Stage,2,7,AD/Standard (G56),,\r\nBackup 606.312,606.312,Stage,,,AD/Standard (G56),,\r\n"
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "input": "test_wwb_xml.SAMPLE_CWS.cws",
+  "format": "wwb-xml",
+  "list": {
+    "sourceFormat": "wwb-cws",
+    "channels": [
+      {
+        "name": "Shure",
+        "frequencyMhz": 471.95,
+        "group": null,
+        "channel": null,
+        "deviceType": "ADPSM/Narrowband",
+        "manufacturer": "Shure",
+        "notes": null,
+        "zone": "Default",
+        "inclusionGroup": null,
+        "isBackup": null
+      },
+      {
+        "name": "Shure",
+        "frequencyMhz": 475.025,
+        "group": "1",
+        "channel": "2",
+        "deviceType": "AD/Standard",
+        "manufacturer": "Shure",
+        "notes": null,
+        "zone": "Default",
+        "inclusionGroup": null,
+        "isBackup": null
+      }
+    ]
+  },
+  "outputs": {
+    "wwb-frequency-list": "471.950\n475.025\n",
+    "wwb-inventory-csv": "Name,Frequency,Group,Channel,Type,Manufacturer,Notes\r\nShure,471.950,,,ADPSM/Narrowband,Shure,\r\nShure,475.025,1,2,AD/Standard,Shure,\r\n",
+    "wsm-csv": "name;type;frequency;tolerance;minfrequency;maxfrequency;priority;squelchlevel\r\nShure;ADPSM/Narrowband;471950;0;471950;471950;;\r\nShure;AD/Standard;475025;0;475025;475025;;\r\n",
+    "generic-csv": "Name,Frequency (MHz),Zone,Group,Channel,Type,Manufacturer,Notes\r\nShure,471.950,Default,,,ADPSM/Narrowband,Shure,\r\nShure,475.025,Default,1,2,AD/Standard,Shure,\r\n"
+  }
+}

@@ -26,6 +26,19 @@ import { writeGenericCsv } from './csvGeneric.js';
 export { detectFormat };
 export * from './csvGeneric.js';
 export * from './freqParse.js';
+// The per-format readers and writers, for callers (and tests) that already
+// know the format. readText/writeFormat below remain the usual entry points.
+export { readWsmCsv, writeWsmCsv } from './wsm.js';
+export { readWsmHtmlReport, looksLikeWsmHtmlReport } from './wsmHtml.js';
+export { readWsmProject, looksLikeWsmXml } from './wsmXml.js';
+export { readWwbReportCsv, looksLikeWwbReport } from './wwbReport.js';
+export { readWwbXml, looksLikeWwbXml } from './wwbXml.js';
+export {
+  readWwbFile,
+  looksLikeBareFrequencyList,
+  writeWwbFrequencyList,
+  writeWwbInventoryCsv,
+} from './wwb.js';
 
 export interface ReadResult {
   format: DetectedFormat;

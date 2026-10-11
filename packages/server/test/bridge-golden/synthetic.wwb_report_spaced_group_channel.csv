@@ -1,0 +1,14 @@
+Coordination report
+
+RF zone: Stage
+
+Primary frequencies (2)
+Type,Band,Channel name,Group & Channel,Frequency,
+No Inclusion Group (2),,,,,
+AD/Standard,G56,Lead Vox,G: 01 Ch: 05,512.0625 MHz,
+AD/Standard,G56,,G:2 Ch:7,470.1875 MHz,
+
+Backup frequencies (1)
+Type,Band,Source,Group & Channel,Frequency,
+No Inclusion Group (1),,,,,
+AD/Standard,G56,,G: -- Ch: --,606.3125 MHz,

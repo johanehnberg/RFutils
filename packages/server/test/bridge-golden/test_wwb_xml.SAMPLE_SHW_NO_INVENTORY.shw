@@ -1,0 +1,17 @@
+<show version="1.0">
+    <coordinated_data_root>
+        <mic_channels units="khz" count="1">
+            <freq_entry>
+                <compat_key>
+                    <zone>Zone 1</zone>
+                    <series>AD</series>
+                    <mode>Standard</mode>
+                </compat_key>
+                <value>471475</value>
+                <gr_ch>G:-- Ch:--</gr_ch>
+                <manufacturer>Shure</manufacturer>
+                <source_name>Shure</source_name>
+            </freq_entry>
+        </mic_channels>
+    </coordinated_data_root>
+</show>
