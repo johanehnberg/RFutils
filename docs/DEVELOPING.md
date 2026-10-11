@@ -97,10 +97,13 @@ error handler, so an unwrapped async handler turns a normal failure into an unha
 rejection.
 
 ### Add or change a parser
-**Stop and check which copy is canonical first.** The original parsers are Python, in the
-standalone [`wsm-wwb-bridge`](https://github.com/stoatworks-labs/wsm-wwb-bridge) repo; the
-TypeScript versions here were **byte-verified** against them. A fix applied to only one side
-silently invalidates that guarantee.
+**These are now the canonical parsers.** The originals are Python, in the standalone
+[`wsm-wwb-bridge`](https://github.com/stoatworks-labs/wsm-wwb-bridge) repo, which is retired in
+favour of RFutils (October 2026). The TypeScript versions here are held to the bridge's output by
+`packages/server/test/bridgeGolden.test.ts` — every reader and writer against what the bridge's
+own Python produced for its published sample files, in `test/bridge-golden/` — and
+`bridgeParity.test.ts`, its unit tests ported assertion for assertion. Change behaviour here on
+purpose and update the fixtures with a note; do not regenerate them away.
 
 Then: **don't tidy a parser to match what the format "ought" to look like.** These formats
 are reverse-engineered from real exports. The awkward branches usually encode a real

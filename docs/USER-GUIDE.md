@@ -5,6 +5,9 @@ separate tools with one app: file conversion between Shure and Sennheiser ecosys
 licence import, live receiver monitoring, intermodulation-clean coordination, allocation, and
 programming receivers.
 
+**MicWizard and wsm-wwb-bridge are retired in favour of RFutils**, which now does everything they
+did. If you used either, start with [Coming from MicWizard or wsm-wwb-bridge](#coming-from-micwizard-or-wsm-wwb-bridge).
+
 > **Before you rely on this for a show:** most of the file formats RFutils reads and writes are
 > *reverse-engineered from real exports*, because neither Shure nor Sennheiser publishes full
 > specifications for them. **Open every export in your own copy of Wireless Workbench or WSM and
@@ -62,6 +65,38 @@ npm run dev:demo
 This runs with simulated receivers, so you can explore discovery, monitoring and the whole UI
 without a single real device on the network. It is also the fastest way to tell an app problem
 from a network problem.
+
+---
+
+## Coming from MicWizard or wsm-wwb-bridge
+
+| You used | Now use | What changes |
+|---|---|---|
+| **wsm-wwb-bridge** | **Convert** | Nothing you need to do. The same formats in and out, the same column-mapping step for an unfamiliar CSV, and the same output byte for byte — RFutils is tested against the bridge's own results. It also runs in the hosted page, with no install. |
+| **MicWizard** | **Monitor** | It runs in your browser: open it on the same machine as `http://localhost:8420`. Your Companion setup moves (below), and USB-input mappings need setting once more. |
+
+### Moving your Companion setup from MicWizard
+
+MicWizard kept `companion-routes.json` in its own app folder:
+
+- macOS: `~/Library/Application Support/MicWizard/`
+- Windows: `%APPDATA%\MicWizard\`
+- Linux: `~/.config/MicWizard/`
+
+RFutils reads it from `~/.rfutils/` instead (or the folder set in `RFUTILS_CONFIG_DIR`). The file
+itself has not changed, so your Companion buttons keep working once it is there:
+
+- **The easy way:** go to **Monitor**. While RFutils has no Companion setup of its own and
+  MicWizard's file is still on the machine, the Dante routing panel shows **Import from MicWizard**.
+  It copies the file across once, checks it first, leaves the original where it is, and never
+  overwrites a setup RFutils already has.
+- **By hand (macOS):** `mkdir -p ~/.rfutils && cp ~/Library/Application\ Support/MicWizard/companion-routes.json ~/.rfutils/`
+
+### USB inputs
+
+MicWizard remembered which USB-interface input each analogue receiver was patched into inside its
+own window, so those mappings don't come across. In **Monitor**, click 🎧 on each such channel once
+and choose the input again (see [Listening on headphones](#listening-on-headphones)).
 
 ---
 
@@ -139,9 +174,51 @@ battery and RF per channel in real time.
 If nothing appears: RFutils and the receivers must be on the same subnet, discovery must not be
 blocked by a firewall, and the wireless network must not be isolating clients from each other.
 
+> **What has and hasn't run on real hardware.** None of the Monitor adapters has been run against
+> a real receiver yet. Shure discovery and metering follow Shure's published Command Strings and
+> now cope with channel names that contain spaces. Sennheiser receivers found on the network are
+> now connected to and read every second, but what RFutils asks them for is a best guess at
+> Sennheiser's SSC paths and has only been tested against a simulated receiver. If you have either
+> on hand, a short capture helps (see the [capture guide](capture-guide.md)).
+
+### Listening on headphones
+
+Every channel has a 🎧 button, and the **Headphone cue** bar above the receivers controls how it
+plays:
+
+- **Solo** (ticked by default): one channel at a time — clicking 🎧 on another replaces the
+  first. Untick it to **mix** several; each playing channel shows its own level next to its 🎧.
+- **Output**: choose headphones, a USB interface or any other output your computer has. This works
+  in Chrome and Edge; Safari and Firefox always use the system output, and the bar says so.
+  **Show device names** appears while the browser is still hiding them — it asks once for
+  microphone permission, which is the only way a browser will reveal them.
+- **Stop all** stops every cue.
+
+Where the sound comes from depends on the channel:
+
+- **Dante / AES67 channels** play straight away (the RFutils server relays them).
+- **With a Dante interface set up for capture** (see the README), any channel plays: RFutils asks
+  Companion to route it to the cue bus. There is one cue bus, so in Mix those channels still
+  replace each other.
+- **A receiver with no network audio** — an analogue unit patched into a USB audio interface — is
+  set up once: click its 🎧 (shown with a dashed border), choose the interface, and pick either
+  the whole device or the one input the receiver is plugged into. From then on 🎧 plays that
+  input. The choice is remembered by this browser; **×** next to the button forgets it.
+
+> **Open RFutils at `http://localhost:8420` on the machine it runs on** if you want to listen.
+> Browsers only allow audio devices on a secure page, which `localhost` is and an address like
+> `http://192.168.1.20:8420` is not. From another computer, the cue — and only the cue — is
+> unavailable; the bar explains this rather than failing silently.
+
+Solo and Mix, the output choice and the USB path have been tried with simulated devices in
+Chrome, but not yet with a real USB interface, a real receiver or Safari/Firefox.
+
+### Dante routing
+
 **Dante routing is off unless you set it up.** RFutils only monitors by default; routing channels
 from here needs your own Bitfocus Companion with a "Make Crosspoint" button and a
-`companion-routes.json` in `~/.rfutils/`. The panel says so when it is not configured.
+`companion-routes.json` in `~/.rfutils/`. The panel says so when it is not configured — and offers
+**Import from MicWizard** if MicWizard's copy of that file is still on the machine.
 
 ---
 
@@ -177,6 +254,18 @@ same screen also exports files for offline programming, which is the safe route.
 | **Frequencies clash with someone already on air** | Put theirs in **Locked / existing** and coordinate again. |
 | **The port is already in use** | Set `RFUTILS_SERVER_PORT` to something else. |
 | **I just want the converters** | Set `RFUTILS_DISABLE_MONITOR=1`, or run `npm run dev:verify`. |
+| **🎧 says cueing needs a secure page** | RFutils was opened by its network address. Open it as `http://localhost:8420` on the machine it runs on. |
+| **🎧 on a USB-mapped channel says the input is not connected** | The interface was unplugged or the browser renamed it. Replug it, or press **×** and map the channel again. |
+| **No sound, but the 🎧 level is moving** | Check the **Output** in the cue bar — the sound may be going to another device. |
+| **Something else went wrong** | Collect diagnostics (next section) and attach the file to your report. |
+
+### Collecting diagnostics
+
+At the bottom of every page, open **Diagnostics** and press **Collect diagnostics**. Your browser
+downloads one file holding the logs, the app version, your settings with any passwords removed,
+and details of any recent crash; attach it to your bug report. A copy also stays on the machine
+RFutils runs on — **Open log folder** shows it (on macOS it is in `~/Library/Logs/rfutils/`,
+which Finder hides by default).
 
 ---
 
@@ -194,4 +283,6 @@ Inventory is stored server-side in the local app.
 
 - [README](../README.md) — what it is, the three tools it replaces, and downloads
 - [wsm-wwb-bridge](https://github.com/stoatworks-labs/wsm-wwb-bridge) — the standalone Python
-  predecessor of the conversion tab
+  predecessor of the Convert tab, now retired in favour of it
+- [MicWizard](https://github.com/stoatworks-labs/MicWizard) — the Electron predecessor of the
+  Monitor tab, now retired in favour of it

@@ -17,7 +17,7 @@ JSON. RFutils supports gear at three levels:
 | Brand | Systems | Control interface | Live control in RFutils? | Dante audio cue? |
 |---|---|---|---|---|
 | **Shure** | ULX-D, QLX-D, Axient Digital, SLX-D, PSM 1000 | Command Strings (TCP 2202, documented) | ✅ discover/monitor/**program** | via Dante models |
-| **Sennheiser** | EW-DX, EW-D, Digital 6000/9000, G4, 2000 | SSC (JSON over TCP) | ⚠️ monitor (skeleton, untested) | via Dante models |
+| **Sennheiser** | EW-DX, EW-D, Digital 6000/9000, G4, 2000 | SSC (JSON over TCP) | ⚠️ discover/monitor — connects to what mDNS finds; SSC paths unverified, untested on hardware | via Dante models |
 | **Lectrosonics** | DSQD, D Squared, DCR822 | **Ethernet control port — Wireless Designer *or third-party*** | ⚠️ discover/monitor/**program** — adapter wired, wire format unverified | via Dante |
 | **Wisycom** | MCR54, MTP | Ethernet "Wisycom Remote Protocol" (Wisycom Manager) | ❌ proprietary; reverse-engineerable | via Dante models |
 | **Sound Devices** | A20-Nexus / Astral | IP web-app API + NexLink + Dante | ❌ proprietary web API; reverse-engineerable | ✅ Dante |

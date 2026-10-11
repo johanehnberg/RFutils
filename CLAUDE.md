@@ -22,7 +22,9 @@ Unified browser app for RF/wireless-mic coordination — merges wsm-wwb-bridge +
 ## Notes
 - **Nothing in `shared` may import a Node builtin** — the static build runs it in the browser.
 - `shared` must be built before server/web — every dev/build script does this first.
-- Parsers here vs the standalone wsm-wwb-bridge (Python): check which is canonical before extending.
+- RFutils is canonical: MicWizard and wsm-wwb-bridge are retired into it. The bridge's output is
+  pinned by `test/bridgeGolden.test.ts` + `test/bridge-golden/` — diverge on purpose, not by
+  regenerating.
 - Public repo (github.com/stoatworks-labs/RFutils). "Commit" = commit **and** push.
 
 ## Diagnostics

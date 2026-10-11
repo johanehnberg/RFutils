@@ -169,8 +169,34 @@ Snapshot of currently discovered devices.
 ### `POST /api/companion/make-crosspoint`
 ### `POST /api/companion/clear-crosspoint`
 
-Both `POST`s take a `CrosspointRequest` body and return `{ "ok": true }` on success, `400`
-on a malformed request.
+Both crosspoint `POST`s take a `CrosspointRequest` body and return `{ "ok": true }` on success,
+`400` on a malformed request.
+
+When RFutils has no `companion-routes.json` but MicWizard left one in its own app-data folder,
+the status carries `"importableFrom": "<that path>"` (otherwise `null`).
+
+### `POST /api/companion/import-micwizard`
+
+Copies MicWizard's `companion-routes.json` into RFutils' config directory, byte for byte, after
+checking it validates. Returns `{ "importedFrom": "<path>", "path": "<path>" }`; `409` with an
+`error` if RFutils already has a config (it is never overwritten), if there is no MicWizard file,
+or if that file would not load.
+
+---
+
+## Diagnostics
+
+### `POST /api/diagnostics`
+
+Writes a diagnostics bundle — the same file `--collect-diagnostics` writes, see
+[diagnostics.md](diagnostics.md) — and returns it as a download (`Content-Disposition:
+attachment`). `X-Diagnostics-Path` carries where it was saved on the server, URI-encoded.
+
+### `POST /api/diagnostics/open-log-folder`
+
+Reveals the log folder in the server machine's file manager and returns `{ "path": "<dir>" }`.
+Only for a request from the same machine (loopback); anything else gets `403` with the path, so
+the UI can show it instead.
 
 ---
 

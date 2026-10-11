@@ -33,9 +33,13 @@ Two consequences:
   ported from wsm-wwb-bridge were **byte-verified** against the Python originals. Preserve
   that standard: verify against a real artefact, not against your model of the format.
 
-**Duplicate-implementation warning:** the standalone `wsm-wwb-bridge` repo still holds the
-original **Python** parsers, and this repo holds **TypeScript** ports. Before extending
-either, work out which is canonical for the change you're making — otherwise the two drift.
+**RFutils is now canonical.** MicWizard and `wsm-wwb-bridge` were retired in its favour in
+October 2026; their repos stay up (not archived), but new work happens here. The bridge's Python
+parsers are pinned by `packages/server/test/bridgeGolden.test.ts` (its own output on its published
+samples, byte for byte, in `test/bridge-golden/`) and `bridgeParity.test.ts` (its unit tests,
+ported). A deliberate divergence from the bridge means updating those fixtures and saying why —
+never regenerating them to make a failure go away. MicWizard's tests live on as `sap`, `aes67`,
+`levels`, `companionConfig`, `aes67Pipeline`, `sennheiser` and `shureDiscovery`.
 
 ## 2a. The RF data is sourced, and every number says where it came from
 
