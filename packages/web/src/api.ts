@@ -243,6 +243,35 @@ export async function clearCrosspoint(
   );
 }
 
+/** A diagnostics bundle the server just wrote, and a copy of it for this browser. */
+export interface DiagnosticsBundle {
+  blob: Blob;
+  fileName: string;
+  /** Where the server saved it, on the machine RFutils runs on. */
+  savedAt: string;
+}
+
+/** Write a diagnostics bundle (logs, version, redacted settings, recent crashes) and fetch it. */
+export async function collectDiagnostics(): Promise<DiagnosticsBundle> {
+  if (staticBuild) noServer('Collecting diagnostics');
+  const res = await fetch('/api/diagnostics', { method: 'POST' });
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error((body as { error?: string }).error ?? `Request failed (${res.status})`);
+  }
+  const savedAt = decodeURIComponent(res.headers.get('X-Diagnostics-Path') ?? '');
+  const fileName =
+    /filename="([^"]+)"/.exec(res.headers.get('Content-Disposition') ?? '')?.[1] ??
+    'rfutils-diagnostics.json';
+  return { blob: await res.blob(), fileName, savedAt };
+}
+
+/** Reveal the log folder in the file manager of the machine RFutils runs on. */
+export async function openLogFolder(): Promise<{ path: string }> {
+  if (staticBuild) noServer('Opening the log folder');
+  return asJson<{ path: string }>(await fetch('/api/diagnostics/open-log-folder', { method: 'POST' }));
+}
+
 /**
  * Subscribe to live device events over WebSocket. Reconnects automatically.
  * Returns a disconnect function.

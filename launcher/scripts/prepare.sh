@@ -55,6 +55,9 @@ mkdir -p "$APP/packages/web/dist"
     --bundle --platform=node --format=esm --target=node18 \
     --banner:js="$BANNER" \
     --outfile="$APP/packages/server/dist/index.mjs" )
+# The server reads its version from ../package.json beside dist/ (for logs and
+# diagnostics bundles); without it the desktop app reports "unknown".
+cp "$REPO/packages/server/package.json" "$APP/packages/server/package.json"
 
 # The .shw templates are NOT copied: gen-templates.mjs inlines them into
 # templates.generated.ts at build time, so showGenerator reads no files and the

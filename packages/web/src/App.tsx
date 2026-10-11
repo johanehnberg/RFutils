@@ -6,6 +6,7 @@ import { CoordinationTab } from './tabs/CoordinationTab.js';
 import { AllocationTab } from './tabs/AllocationTab.js';
 import { DeploymentTab } from './tabs/DeploymentTab.js';
 import { staticBuild } from './buildMode.js';
+import { DiagnosticsPanel } from './components/DiagnosticsPanel.js';
 import type { JSX } from 'react';
 
 type TabId = 'convert' | 'monitor' | 'inventory' | 'coordination' | 'allocation' | 'deployment';
@@ -77,6 +78,9 @@ export function App(): JSX.Element {
         {tab === 'allocation' && <AllocationTab />}
         {tab === 'deployment' && !staticBuild && <DeploymentTab />}
       </main>
+
+      {/* Needs the server, which writes the bundle; the hosted build has none. */}
+      {!staticBuild && <DiagnosticsPanel />}
 
       <footer className="app__footer">
         AI-assisted build · combines wsm-wwb-bridge, pmse-to-wwb and MicWizard · verify

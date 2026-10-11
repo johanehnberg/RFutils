@@ -1,3 +1,6 @@
+import { execFile } from 'node:child_process';
+import { readFileSync } from 'node:fs';
+import { basename } from 'node:path';
 import { Router, type Request, type Response, type NextFunction } from 'express';
 import multer from 'multer';
 import type { CoordinationList, ExportFormat, CrosspointRequest } from '@rfutils/shared';
@@ -15,6 +18,7 @@ import { LECTRO_PROGRAM_TEMPLATE } from './monitor/discovery/lectrosonicsProtoco
 import { renderProgramCommand } from '@rfutils/shared';
 import type { TransportId } from '@rfutils/shared';
 import type { CoordinationParams, CoordinationRadio, InventoryItem } from '@rfutils/shared';
+import { collectDiagnostics, log, logDirectory } from './diag/index.js';
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 25 * 1024 * 1024 } });
 
@@ -40,6 +44,19 @@ function wrap(
   return (req, res, next) => {
     handler(req, res).catch(next);
   };
+}
+
+/** A request from this machine itself, not from elsewhere on the network. */
+function fromLoopback(req: Request): boolean {
+  const address = req.socket.remoteAddress ?? '';
+  return address === '127.0.0.1' || address === '::1' || address === '::ffff:127.0.0.1';
+}
+
+/** The OS file manager, pointed at a directory. */
+function revealCommand(dir: string): [string, string[]] {
+  if (process.platform === 'darwin') return ['open', [dir]];
+  if (process.platform === 'win32') return ['explorer', [dir]];
+  return ['xdg-open', [dir]];
 }
 
 /** Infer a control transport from a device-channel id's vendor prefix. */
@@ -381,6 +398,54 @@ export function createApiRouter(monitor: MonitorService): Router {
       res.status(400).json({ error: (err as Error).message });
     }
   }));
+
+  // --- Diagnostics ---------------------------------------------------------
+
+  /**
+   * Write a diagnostics bundle (the same file `--collect-diagnostics` writes)
+   * and send it back as a download. The browser may be on another machine, or
+   * the server in a container, so the file itself travels; the path it was
+   * saved at on the server comes back in X-Diagnostics-Path (URI-encoded,
+   * since a header is ASCII and a home directory need not be).
+   */
+  router.post('/diagnostics', (_req: Request, res: Response) => {
+    try {
+      const file = collectDiagnostics();
+      log.info({ file }, 'diagnostics bundle written (from the web UI)');
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', `attachment; filename="${basename(file)}"`);
+      res.setHeader('X-Diagnostics-Path', encodeURIComponent(file));
+      res.send(readFileSync(file));
+    } catch (err) {
+      res.status(500).json({ error: (err as Error).message });
+    }
+  });
+
+  /**
+   * Reveal the log folder in the file manager — on macOS it is under
+   * ~/Library/Logs, which Finder hides. Only for a browser on this same
+   * machine: opening a window on the server's screen for someone elsewhere on
+   * the network helps nobody.
+   */
+  router.post('/diagnostics/open-log-folder', (req: Request, res: Response) => {
+    const dir = logDirectory();
+    if (!fromLoopback(req)) {
+      res.status(403).json({
+        error: `The log folder is on the machine RFutils runs on: ${dir}`,
+        path: dir,
+      });
+      return;
+    }
+    const [command, args] = revealCommand(dir);
+    execFile(command, args, (err) => {
+      // explorer.exe exits 1 even when it opened the window.
+      if (err && process.platform !== 'win32') {
+        res.status(500).json({ error: `Could not open ${dir}: ${err.message}`, path: dir });
+        return;
+      }
+      res.json({ path: dir });
+    });
+  });
 
   return router;
 }

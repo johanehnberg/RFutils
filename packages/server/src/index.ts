@@ -9,17 +9,37 @@ import { createApiRouter } from './routes.js';
 import { MonitorService, type AudioFrame } from './monitor/index.js';
 import { collectDiagnostics, init as initDiag, say } from './diag/index.js';
 
+/**
+ * The version this server is, for logs, crash reports and diagnostics bundles:
+ * packages/server/package.json, which `npm version --workspaces` bumps. It used
+ * to be a literal '0.2.0' here, so every bundle from 0.3 onwards named the
+ * wrong build. Resolved relative to this file, which sits one level below that
+ * package.json in src/, dist/ and the desktop app's bundle alike.
+ */
+function serverVersion(): string {
+  try {
+    const pkg = JSON.parse(fs.readFileSync(new URL('../package.json', import.meta.url), 'utf8')) as {
+      version?: unknown;
+    };
+    return typeof pkg.version === 'string' ? pkg.version : 'unknown';
+  } catch {
+    return 'unknown';
+  }
+}
+
 // Before anything that can fail, so a failure during startup is logged and
 // captured like any other.
 initDiag({
   app: 'rfutils',
   envPrefix: 'RFUTILS',
-  version: '0.2.0',
+  version: serverVersion(),
 });
 
 if (process.argv.includes('--collect-diagnostics')) {
-  // stdout, so it can be used in a script; logging went to stderr.
-  say.info(collectDiagnostics());
+  // The path alone on stdout, so it can be used in a script; logging goes to
+  // stderr. (This used to go through say.info, which is the log — stderr — so
+  // stdout came out empty.)
+  process.stdout.write(`${collectDiagnostics()}\n`);
   process.exit(0);
 }
 
