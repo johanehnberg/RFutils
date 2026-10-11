@@ -8,6 +8,7 @@ import type {
 import { DeviceRegistry } from './deviceRegistry.js';
 import { startMdnsDiscovery, type MdnsDiscoveryHandle } from './discovery/mdns.js';
 import { startShureDiscovery, type ShureDiscoveryHandle } from './discovery/shure.js';
+import { SennheiserConnections } from './discovery/sennheiser.js';
 import {
   startLectrosonicsDiscovery,
   type LectrosonicsDiscoveryHandle,
@@ -55,6 +56,8 @@ export class MonitorService extends EventEmitter {
   private registry = new DeviceRegistry();
   private mdns: MdnsDiscoveryHandle | null = null;
   private shure: ShureDiscoveryHandle | null = null;
+  /** One SSC connection per Sennheiser receiver mDNS has seen. */
+  private sennheiser = new SennheiserConnections(this.registry);
   private lectrosonics: LectrosonicsDiscoveryHandle | null = null;
   private sap: SapListener | null = null;
   private aes67Streams = new Map<string, Aes67StreamHandle>();
@@ -112,7 +115,13 @@ export class MonitorService extends EventEmitter {
       return;
     }
 
-    this.mdns = startMdnsDiscovery(this.registry);
+    // Each `_ssc._tcp` sighting opens (or, after a drop, re-opens) the SSC
+    // connection that actually meters the receiver. Without this callback a
+    // Sennheiser receiver was discovered and then never connected (the gap
+    // MicWizard fixed in a52ebe3).
+    this.mdns = startMdnsDiscovery(this.registry, (address, port) =>
+      this.sennheiser.ensure(address, port)
+    );
     this.shure = startShureDiscovery(this.registry);
     this.lectrosonics = startLectrosonicsDiscovery(this.registry);
 
@@ -165,6 +174,7 @@ export class MonitorService extends EventEmitter {
 
   stop(): void {
     this.mdns?.stop();
+    this.sennheiser.stopAll();
     this.shure?.stop();
     this.lectrosonics?.stop();
     this.sap?.stop();
