@@ -7,7 +7,8 @@ import type { DeviceChannel } from '@rfutils/shared';
  *
  * Everything here was originally inline in shure.ts, which was ported verbatim
  * from MicWizard before MicWizard fixed five bugs in it. This module is the port
- * of the fixed version; each fix is described at its own function.
+ * of the fixed version; each fix is described at its own function. The sixth,
+ * multi-word channel names (MicWizard 6f00b9a), is `readFields` below.
  */
 
 /**
@@ -43,6 +44,128 @@ export interface ParsedShureMessage {
 }
 
 /**
+ * Every key this parser understands.
+ *
+ * Used to find where a multi-word value ends. Anything not in here that turns
+ * up where a key is expected is treated as part of the value being read, which
+ * is the right way round: a stray token swallowed into a channel name is a
+ * cosmetic wrong name, whereas a name's second word taken for a key shifts
+ * every later pairing by one and silently freezes the meters.
+ */
+const SHURE_KEYS = new Set([
+  'CHAN_NAME',
+  'RF_LVL',
+  'RF_LVL_A',
+  'RF_LVL_B',
+  'AUDIO_LVL',
+  'BATT_CHARGE',
+  'BATT_RUN_TIME',
+  'BATT_BARS',
+  'ANTENNA',
+  'TX_MODEL',
+  'TX_TYPE',
+  'MUTE_STATUS',
+  'GROUP_CHAN',
+  'FREQUENCY',
+  'ENCRYPTION_STATUS',
+  'TX_DEVICE_ID',
+]);
+
+/**
+ * The keys whose value is operator-entered text and may therefore run to
+ * several tokens. Everything else is a single token, and reading it greedily
+ * would fold a trailing junk token into a number.
+ */
+const FREE_TEXT_KEYS = new Set(['CHAN_NAME']);
+
+/**
+ * An empty value is an ABSENT field, not a present one.
+ *
+ * `keep()` decides whether to carry the previous reading over by asking
+ * `fields.has(key)`, and `Number('')` is 0 — so recording an empty BATT_CHARGE
+ * would report a flat battery rather than "no reading".
+ */
+function setIfPresent(fields: Map<string, string>, key: string, value: string): void {
+  if (value.length > 0) fields.set(key, value);
+}
+
+/**
+ * Key/value pairs out of a message body, where a value may be several tokens.
+ *
+ * The naive version of this paired tokens off two at a time, which is only
+ * correct while every value is a single token. CHAN_NAME is the operator's own
+ * text and routinely has spaces in it — "Lead Vox", "Pastor 1", "Radio 2". A
+ * name of n words contributes n tokens where the pairing expected one, so from
+ * that point every key was read as a value and every value as a key:
+ * `REP 1 CHAN_NAME Lead Vox BATT_CHARGE 078` gave CHAN_NAME→"Lead",
+ * "Vox"→"BATT_CHARGE", "078"→"RF_LVL_A". BATT_CHARGE then looked absent, the
+ * carry-over kept the previous value, and the battery gauge froze — which on a
+ * radio-mic monitor is the worst available way for this to fail.
+ *
+ * Two forms are handled. Braces are the protocol's own delimiter and exist
+ * precisely because the value can contain spaces (ULX-D/QLX-D/Axient send
+ * `CHAN_NAME {Lead Vox            }`); the padding inside is stripped. Without
+ * braces, a value runs until the next token that is a known key.
+ *
+ * Ported from MicWizard 6f00b9a, where all of this was found.
+ */
+export function readFields(tokens: string[]): Map<string, string> {
+  const fields = new Map<string, string>();
+  let i = 0;
+
+  while (i < tokens.length) {
+    const key = tokens[i]!;
+    i += 1;
+    if (i >= tokens.length) break;
+
+    if (tokens[i]!.startsWith('{')) {
+      const words: string[] = [];
+      let closed = false;
+      while (i < tokens.length) {
+        const token = tokens[i]!;
+        words.push(token);
+        i += 1;
+        if (token.endsWith('}')) {
+          closed = true;
+          break;
+        }
+      }
+      let value = words.join(' ').slice(1);
+      if (closed) value = value.slice(0, -1);
+      // Fixed-width and space-padded inside the braces.
+      setIfPresent(fields, key, value.trim());
+      continue;
+    }
+
+    if (!FREE_TEXT_KEYS.has(key)) {
+      // Everything else is one token. Reading these greedily would fold a
+      // trailing junk token into a number — "BATT_CHARGE 078 DANGLING" has to
+      // stay 78, not become NaN.
+      //
+      // But a key sitting where the value should be is a key, not a value:
+      // consuming it would lose that field AND shift everything after it,
+      // which is the whole fault being fixed here.
+      if (!SHURE_KEYS.has(tokens[i]!)) {
+        setIfPresent(fields, key, tokens[i]!);
+        i += 1;
+      }
+      continue;
+    }
+
+    const words: string[] = [];
+    while (i < tokens.length && !SHURE_KEYS.has(tokens[i]!)) {
+      words.push(tokens[i]!);
+      i += 1;
+    }
+    // A key immediately followed by another key has no value, and must not
+    // swallow that key.
+    setIfPresent(fields, key, words.join(' '));
+  }
+
+  return fields;
+}
+
+/**
  * Parses one already-unframed message body, e.g. "REP 1 BATT_CHARGE 087" or
  * "SAMPLE 1 RF_LVL_A 072 AUDIO_LVL 054".
  *
@@ -63,10 +186,7 @@ export function parseShureMessage(
   if (kind !== 'REP' && kind !== 'SAMPLE') return null;
   if (!channelNum) return null;
 
-  const fields = new Map<string, string>();
-  for (let i = 0; i < rest.length - 1; i += 2) {
-    fields.set(rest[i]!, rest[i + 1]!);
-  }
+  const fields = readFields(rest);
 
   /** Present in this message wins; otherwise keep what was already known. */
   const keep = <T>(present: boolean, value: T, previous: T | undefined): T =>

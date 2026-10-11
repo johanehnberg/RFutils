@@ -11,7 +11,12 @@
 import { describe, it, expect } from 'vitest';
 import {
   extractFramedMessages,
+  parseAntenna,
+  parsePercent,
+  parseMinutes,
+  parseShureAudioLevel,
   parseShureMessage,
+  readFields,
   subnetHostsFor,
 } from '../src/monitor/discovery/shureProtocol.js';
 
@@ -111,6 +116,150 @@ describe('parseShureMessage', () => {
     expect(parsed!.channel.name).toBe('Channel 2');
     expect(parsed!.channel.batteryPercent).toBeNull();
     expect(parsed!.channel.rfLevel).toBeNull();
+  });
+
+  // The cases below were in MicWizard's suite and not yet here.
+
+  it('parses a SAMPLE message with RF, audio and antenna fields', () => {
+    const parsed = parseShureMessage(
+      'SAMPLE 2 RF_LVL_A 072 AUDIO_LVL 054 ANTENNA DIVERSITY',
+      'shure:10.0.0.5'
+    );
+    expect(parsed!.channel.rfLevel).toBe(72);
+    expect(parsed!.channel.audioLevelDb).toBe(-46); // 54 - 100
+    expect(parsed!.channel.antenna).toBe('diversity');
+  });
+
+  it('falls back to a generated channel name when CHAN_NAME is absent', () => {
+    const parsed = parseShureMessage('REP 3 BATT_CHARGE 050', 'shure:10.0.0.5');
+    expect(parsed!.channel.name).toBe('Channel 3');
+  });
+
+  it('returns null for an empty message', () => {
+    expect(parseShureMessage('', 'shure:10.0.0.5')).toBeNull();
+  });
+
+  it('drops an unpaired trailing token rather than crashing or folding it in', () => {
+    const parsed = parseShureMessage('REP 1 BATT_CHARGE 078 DANGLING', 'shure:10.0.0.5');
+    expect(parsed!.channel.batteryPercent).toBe(78);
+  });
+});
+
+/*
+ * A channel name is the operator's own text and routinely has spaces in it —
+ * "Lead Vox", "Pastor 1", "Radio 2". The body used to be split on whitespace
+ * and paired off two tokens at a time, which is only correct while every value
+ * is a single token: a name of n words contributed n tokens where the pairing
+ * expected one, so from that point every key was read as a value and every
+ * value as a key. BATT_CHARGE then looked absent, the carry-over kept the last
+ * reading, and the battery gauge froze — on a radio-mic monitor, the worst
+ * available way to fail. Every case above uses a single-word name, which is
+ * why none of them could see it. Ported from MicWizard 6f00b9a; each of these
+ * fails against the old pairing.
+ */
+describe('parseShureMessage: channel names with spaces', () => {
+  it('a multi-word channel name does not shift every later field', () => {
+    const parsed = parseShureMessage(
+      'REP 1 CHAN_NAME Lead Vox BATT_CHARGE 078 RF_LVL_A 055',
+      'shure:10.0.0.5'
+    );
+    expect(parsed!.channel.name).toBe('Lead Vox');
+    expect(parsed!.channel.batteryPercent).toBe(78);
+    expect(parsed!.channel.rfLevel).toBe(55);
+  });
+
+  it('a three-word name shifts nothing either', () => {
+    // An odd word count shifted the alignment differently again.
+    const parsed = parseShureMessage(
+      'REP 2 CHAN_NAME Stage Left Radio BATT_CHARGE 042 AUDIO_LVL 054',
+      'shure:10.0.0.5'
+    );
+    expect(parsed!.channel.name).toBe('Stage Left Radio');
+    expect(parsed!.channel.batteryPercent).toBe(42);
+    expect(parsed!.channel.audioLevelDb).toBe(-46);
+  });
+
+  it('a braced, space-padded name is unwrapped and trimmed', () => {
+    // The ULX-D/QLX-D/Axient form: brace-delimited and fixed-width, which is
+    // exactly why the protocol delimits it at all.
+    const parsed = parseShureMessage(
+      'REP 1 CHAN_NAME {Lead Vox            } BATT_CHARGE 078',
+      'shure:10.0.0.5'
+    );
+    expect(parsed!.channel.name).toBe('Lead Vox');
+    expect(parsed!.channel.batteryPercent).toBe(78);
+  });
+
+  it('a name in braces with no spaces still works', () => {
+    const parsed = parseShureMessage('REP 1 CHAN_NAME {Lectern} RF_LVL_A 061', 'shure:10.0.0.5');
+    expect(parsed!.channel.name).toBe('Lectern');
+    expect(parsed!.channel.rfLevel).toBe(61);
+  });
+
+  it('a multi-word name at the end of the message is kept whole', () => {
+    const parsed = parseShureMessage('REP 3 BATT_CHARGE 090 CHAN_NAME Pastor 1', 'shure:10.0.0.5');
+    expect(parsed!.channel.name).toBe('Pastor 1');
+    expect(parsed!.channel.batteryPercent).toBe(90);
+  });
+
+  it('an empty reading is absent, not a flat battery', () => {
+    // Number('') is 0, so recording an empty value would report 0% rather
+    // than "no reading" and the carry-over would never fire.
+    const parsed = parseShureMessage('REP 1 BATT_CHARGE CHAN_NAME Lead Vox', 'shure:10.0.0.5', {
+      id: 'shure:10.0.0.5:1',
+      name: 'old',
+      rfLevel: null,
+      audioLevelDb: null,
+      batteryPercent: 55,
+      batteryMinutesRemaining: null,
+      antenna: null,
+    });
+    expect(parsed!.channel.name).toBe('Lead Vox');
+    expect(parsed!.channel.batteryPercent).toBe(55); // the previous reading is kept
+  });
+
+  it('an all-padding braced name is absent, so the known name survives', () => {
+    const known = parseShureMessage('REP 1 CHAN_NAME Lectern', 'shure:10.0.0.5')!.channel;
+    const parsed = parseShureMessage('REP 1 CHAN_NAME {            } BATT_CHARGE 040', 'shure:10.0.0.5', known);
+    expect(parsed!.channel.name).toBe('Lectern');
+    expect(parsed!.channel.batteryPercent).toBe(40);
+  });
+
+  it('readFields reads every key of a mixed message', () => {
+    const fields = readFields(
+      'CHAN_NAME {Radio 2  } BATT_RUN_TIME 00125 ANTENNA AB TX_MODEL ULXD2'.split(/\s+/)
+    );
+    expect([...fields.entries()]).toEqual([
+      ['CHAN_NAME', 'Radio 2'],
+      ['BATT_RUN_TIME', '00125'],
+      ['ANTENNA', 'AB'],
+      ['TX_MODEL', 'ULXD2'],
+    ]);
+  });
+});
+
+describe('value parsers', () => {
+  it('parsePercent / parseMinutes: numeric strings, null for undefined or non-numeric', () => {
+    expect(parsePercent('42')).toBe(42);
+    expect(parsePercent(undefined)).toBeNull();
+    expect(parsePercent('not-a-number')).toBeNull();
+    expect(parseMinutes('312')).toBe(312);
+    expect(parseMinutes(undefined)).toBeNull();
+    expect(parseMinutes('n/a')).toBeNull();
+  });
+
+  it('parseShureAudioLevel shifts the 0-100+ code down by 100 to approximate dBFS', () => {
+    expect(parseShureAudioLevel('100')).toBe(0);
+    expect(parseShureAudioLevel('54')).toBe(-46);
+    expect(parseShureAudioLevel(undefined)).toBeNull();
+  });
+
+  it('parseAntenna maps known codes, null for anything else', () => {
+    expect(parseAntenna('A')).toBe('A');
+    expect(parseAntenna('B')).toBe('B');
+    expect(parseAntenna('DIVERSITY')).toBe('diversity');
+    expect(parseAntenna('WEIRD')).toBeNull();
+    expect(parseAntenna(undefined)).toBeNull();
   });
 });
 
