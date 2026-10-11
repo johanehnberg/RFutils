@@ -12,9 +12,9 @@ const VENDOR_LABEL: Record<DiscoveredDevice['vendor'], string> = {
 };
 
 /**
- * Ported from MicWizard's DeviceList, minus the local-cue button (audio
- * cueing to browser headphones is out of scope for the web build — the
- * server publishes levels, not raw multicast audio).
+ * Ported from MicWizard's DeviceList. Each channel carries a CueButton: the
+ * server relays network audio to the browser, and a channel with none can be
+ * mapped to a local USB input instead.
  */
 export function DeviceList({ devices }: { devices: DiscoveredDevice[] }): JSX.Element {
   if (devices.length === 0) {

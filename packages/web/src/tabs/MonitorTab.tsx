@@ -3,6 +3,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { connectDeviceStore, useDeviceStore } from '../store.js';
 import { DeviceList } from '../components/DeviceList.js';
 import { RoutingPanel } from '../components/RoutingPanel.js';
+import { CueBar } from '../components/CueBar.js';
 import type { JSX } from 'react';
 
 /** Live receiver monitoring — the MicWizard dashboard, over WebSocket. */
@@ -29,6 +30,7 @@ export function MonitorTab(): JSX.Element {
           {connected ? 'live' : 'connecting…'}
         </span>
       </div>
+      <CueBar />
       <DeviceList devices={devices} />
       <RoutingPanel />
     </div>
