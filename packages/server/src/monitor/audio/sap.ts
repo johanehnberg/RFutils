@@ -77,12 +77,13 @@ export class SapListener extends EventEmitter {
   }
 }
 
-function extractSdp(payload: string): string | null {
+/** Exported for unit testing (test/sap.test.ts); test/aes67Pipeline.test.ts drives the real sockets. */
+export function extractSdp(payload: string): string | null {
   const start = payload.indexOf('v=0');
   return start >= 0 ? payload.slice(start) : null;
 }
 
-function parseSdp(sdp: string): Aes67SessionInfo | null {
+export function parseSdp(sdp: string): Aes67SessionInfo | null {
   const lines = sdp.split(/\r?\n/);
   const originLine = lines.find((l) => l.startsWith('o='));
   const nameLine = lines.find((l) => l.startsWith('s='));

@@ -15,7 +15,11 @@ import {
 } from './discovery/lectrosonics.js';
 import { SapListener } from './audio/sap.js';
 import { monitorAes67Stream, type Aes67StreamHandle } from './audio/aes67.js';
-import { loadCompanionConfig } from './companion/routesConfig.js';
+import {
+  importableMicWizardConfig,
+  importMicWizardConfig,
+  loadCompanionConfig,
+} from './companion/routesConfig.js';
 import { CompanionClient } from './companion/companionClient.js';
 import { seedMockDevices } from './mockDevices.js';
 import { resolveCaptureConfig, CaptureSource, type CaptureConfig } from './captureSource.js';
@@ -352,7 +356,16 @@ export class MonitorService extends EventEmitter {
 
   async companionStatus(): Promise<CompanionStatus> {
     const config = loadCompanionConfig();
-    if (!config) return { configured: false, host: null, port: null, reachable: null, canClear: false };
+    if (!config) {
+      return {
+        configured: false,
+        host: null,
+        port: null,
+        reachable: null,
+        canClear: false,
+        importableFrom: importableMicWizardConfig(),
+      };
+    }
     const reachable = await new CompanionClient(config).checkReachable();
     return {
       configured: true,
@@ -361,6 +374,11 @@ export class MonitorService extends EventEmitter {
       reachable,
       canClear: config.clearCrosspointButton !== null,
     };
+  }
+
+  /** One-time copy of MicWizard's companion-routes.json into ~/.rfutils (or RFUTILS_CONFIG_DIR). */
+  importMicWizardCompanionConfig(): { importedFrom: string; path: string } {
+    return importMicWizardConfig();
   }
 
   async makeCrosspoint(request: CrosspointRequest): Promise<void> {

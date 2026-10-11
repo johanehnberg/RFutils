@@ -354,6 +354,15 @@ export function createApiRouter(monitor: MonitorService): Router {
     res.json(await monitor.companionStatus());
   }));
 
+  /** Copy MicWizard's companion-routes.json across, once. Never overwrites. */
+  router.post('/companion/import-micwizard', (_req: Request, res: Response) => {
+    try {
+      res.json(monitor.importMicWizardCompanionConfig());
+    } catch (err) {
+      res.status(409).json({ error: (err as Error).message });
+    }
+  });
+
   router.post('/companion/make-crosspoint', wrap(async (req: Request, res: Response) => {
     try {
       await monitor.makeCrosspoint(req.body as CrosspointRequest);

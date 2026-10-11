@@ -56,6 +56,12 @@ export interface CompanionStatus {
   port: number | null;
   reachable: boolean | null;
   canClear: boolean;
+  /**
+   * When RFutils has no companion-routes.json of its own but MicWizard left one
+   * behind, where that file is — so the Monitor tab can offer to import it.
+   * Absent or null otherwise.
+   */
+  importableFrom?: string | null;
 }
 
 export interface CrosspointRequest {

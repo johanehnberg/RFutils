@@ -63,7 +63,8 @@ export function monitorAes67Stream(
   };
 }
 
-function decodeRtpAudio(
+/** Deinterleaves one RTP packet's PCM payload into per-channel Float32Arrays in [-1, 1]. Exported for unit testing. */
+export function decodeRtpAudio(
   packet: Buffer,
   bytesPerSample: number,
   channelCount: number

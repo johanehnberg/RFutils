@@ -794,3 +794,33 @@ body {
     grid-template-columns: 1fr 1fr;
   }
 }
+
+/* Offer to carry MicWizard's companion-routes.json across (RoutingPanel). */
+.routing-panel__import {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent-2);
+  border-radius: 6px;
+  background: var(--panel-2);
+}
+.routing-panel__import p {
+  margin: 0 0 8px;
+  color: var(--muted);
+}
+.routing-panel__import code {
+  word-break: break-all;
+}
+.routing-panel__import button {
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 7px 14px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.routing-panel__import button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

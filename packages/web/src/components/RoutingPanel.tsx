@@ -2,7 +2,12 @@ import { useEffect, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import type { CompanionStatus } from '@rfutils/shared';
 import { useDeviceStore } from '../store.js';
-import { companionStatus, makeCrosspoint, clearCrosspoint } from '../api.js';
+import {
+  companionStatus,
+  makeCrosspoint,
+  clearCrosspoint,
+  importMicWizardCompanionConfig,
+} from '../api.js';
 import type { JSX } from 'react';
 
 type SubmitState = 'idle' | 'sending' | 'ok' | 'error';
@@ -26,6 +31,7 @@ export function RoutingPanel(): JSX.Element | null {
   const [routeState, setRouteState] = useState<SubmitState>('idle');
   const [clearState, setClearState] = useState<SubmitState>('idle');
   const [error, setError] = useState<string | null>(null);
+  const [importState, setImportState] = useState<SubmitState>('idle');
   // useShallow is load-bearing, not tidiness. zustand v5 compares the selector's
   // result by reference; a selector building a fresh array every call never
   // compares equal, so it re-renders forever until React throws "Maximum update
@@ -41,10 +47,37 @@ export function RoutingPanel(): JSX.Element | null {
 
   if (!status) return null;
 
+  const importFromMicWizard = async (): Promise<void> => {
+    setImportState('sending');
+    setError(null);
+    try {
+      await importMicWizardCompanionConfig();
+      setImportState('ok');
+      setStatus(await companionStatus());
+    } catch (err) {
+      setImportState('error');
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  };
+
   if (!status.configured) {
     return (
       <section className="routing-panel routing-panel--unavailable">
         <h2>Dante routing</h2>
+        {status.importableFrom && (
+          <div className="routing-panel__import">
+            <p>
+              MicWizard's Companion setup is still on this machine at{' '}
+              <code>{status.importableFrom}</code>. RFutils reads the same file from its own
+              folder; import it to carry your Companion buttons across. The original is left where
+              it is.
+            </p>
+            <button onClick={importFromMicWizard} disabled={importState === 'sending'}>
+              {actionLabel(importState, 'Import from MicWizard')}
+            </button>
+            {error && <p className="routing-panel__error">{error}</p>}
+          </div>
+        )}
         <p>
           No <code>companion-routes.json</code> found — RFutils only monitors audio/battery/RF by
           default. To route Dante channels from here, run your own{' '}

@@ -202,6 +202,12 @@ export async function companionStatus(): Promise<CompanionStatus> {
   return asJson<CompanionStatus>(await fetch('/api/companion/status'));
 }
 
+/** Copy MicWizard's companion-routes.json into RFutils' config directory, once. */
+export async function importMicWizardCompanionConfig(): Promise<{ importedFrom: string; path: string }> {
+  if (staticBuild) noServer('Companion routing');
+  return asJson(await fetch('/api/companion/import-micwizard', { method: 'POST' }));
+}
+
 export interface AudioModeInfo {
   mode: 'capture' | 'direct';
   cueBusConfigured: boolean;
