@@ -54,7 +54,9 @@ npm install
 npm run dev
 ```
 
-Then open **http://localhost:8420**.
+Then open **http://localhost:5273**. That's the Vite dev server, which passes the API through to
+the RFutils server on port 8420. The desktop app and a production build serve everything from
+the server's own port, 8420 by default.
 
 **No hardware? Use demo mode:**
 

@@ -130,9 +130,9 @@ frequencies over TCP all need sockets a web page can't open. For those, run RFut
 
 - **Monitor is MicWizard's main view**: discovery, audio/RF meters, battery, the headphone cue,
   Dante routing through Companion, and **Diagnostics** (at the bottom of every page).
-- It's a web app now. Start the desktop app (or `npm run dev`) and **open it on the same machine
-  as `http://localhost:8420`** for the headphone cue. Browsers only allow audio devices on
-  `localhost` or HTTPS, not on `http://192.168.x.x`.
+- It's a web app now. Start the desktop app and **open it on the same machine as
+  `http://localhost:8420`** (`http://localhost:5273` under `npm run dev`) for the headphone cue.
+  Browsers only allow audio devices on `localhost` or HTTPS, not on `http://192.168.x.x`.
 - **Your Companion setup moves.** MicWizard read `companion-routes.json` from
   `~/Library/Application Support/MicWizard/` (macOS; `%APPDATA%\MicWizard\` on Windows,
   `~/.config/MicWizard/` on Linux). RFutils reads `~/.rfutils/companion-routes.json`, or the
@@ -240,11 +240,12 @@ port, start and stop the server, and open the web UI. It's **fully self-containe
 embeds a Node runtime plus the whole app (server and built web UI), so there's nothing to
 install, not even Node. Grab it from
 [Releases](https://github.com/stoatworks-labs/RFutils/releases), or see
-[launcher/](launcher/) to build it. The `.dmg` is **unsigned**, so see
-[Unsigned builds](#unsigned-builds--gatekeeper-smartscreen--defender-firewall)
-for first-launch and firewall notes. If you ever get an Apple Developer account,
-[launcher/SIGNING.md](launcher/SIGNING.md) shows how to turn signing on; until
-then you don't need it.
+[launcher/](launcher/) to build it. Released builds are Developer ID-signed and
+notarised, so the `.dmg` opens normally. The Windows first-launch and firewall
+prompts are covered in
+[Windows SmartScreen & Defender Firewall](#windows-smartscreen--defender-firewall),
+and [launcher/SIGNING.md](launcher/SIGNING.md) covers signing a copy you build
+yourself.
 
 <p align="center"><img src="launcher/docs/panel.png" width="300" alt="RFutils desktop app"></p>
 
@@ -471,11 +472,15 @@ The suite takes a plan all the way through:
 - **Allocation**: pair coordinated frequencies with talent / inventory channels (filled in
   from the last coordination, or coordinated straight from the inventory), then export any format.
 - **Deployment**: bind allocations to live receiver channels and program them, or export files for
-  offline programming. Live programming uses Shure command strings (`SET … FREQUENCY`) and is
-  **dry-run by default**, so it shows you the exact strings before anything is sent.
+  offline programming. Live programming uses Shure command strings (`SET … FREQUENCY`) or the
+  Lectrosonics network protocol, and is **dry-run by default**, so it shows you the exact strings
+  before anything is sent.
   ⚠️ Live programming is experimental and untested against hardware, and only Shure
-  command-strings channels can be programmed live (others export). Check against your receiver's
-  Command Strings PDF before sending. See [`programming/shureProgrammer.ts`](packages/server/src/programming/shureProgrammer.ts).
+  command-strings and Lectrosonics channels can be programmed live (others export). The
+  Lectrosonics wire format is still an unverified placeholder. Check against your receiver's
+  Command Strings PDF (or the Lectrosonics IP-control spec) before sending. See
+  [`programming/shureProgrammer.ts`](packages/server/src/programming/shureProgrammer.ts) and
+  [`programming/lectrosonicsProgrammer.ts`](packages/server/src/programming/lectrosonicsProgrammer.ts).
 
 ![RFutils Deployment tab: allocated frequencies bound to live device channels with a dry-run showing the exact Shure command strings](docs/screenshots/deployment.png)
 
