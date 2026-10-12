@@ -23,8 +23,9 @@ Monitor are the app's mock devices, as there wasn't a wireless rack attached.*
 | [pmse-to-wwb](https://github.com/stoatworks-labs/pmse-to-wwb) | Convert an Ofcom PMSE licence schedule PDF into WWB import files | **Convert** (drop the PDF) |
 | [MicWizard](https://github.com/stoatworks-labs/MicWizard) | Discover networked Shure/Sennheiser/AES67 receivers and monitor audio / battery / RF | **Monitor** |
 
-**MicWizard and wsm-wwb-bridge are retired in favour of RFutils**, which now covers everything they
-did. Their repositories and past releases are staying put, but new work happens here. Moving
+**All three are retired in favour of RFutils**, which now covers everything they did. Their
+repositories were archived on 11 October 2026 and stay up with their past releases, but new work
+happens here. Moving
 across? See [Coming from MicWizard or wsm-wwb-bridge](#coming-from-micwizard-or-wsm-wwb-bridge).
 
 ```mermaid
@@ -181,7 +182,7 @@ server largely intact, tests and all.
 
 ## Running it
 
-Needs Node 18+ (I develop against Node 22/26).
+Needs Node 22.13 or newer (I develop against Node 22/26).
 
 ```bash
 npm install
@@ -205,11 +206,13 @@ To build the browser-only version:
 
 ```bash
 npm run build:static     # -> packages/web/dist-static
-npm run preview:static   # serve that build locally
+npm run preview:static -w @rfutils/web   # serve that build locally
 ```
 
 It's published to a **static-assets-only Cloudflare Worker** (`wrangler.toml`, worker
-`rfutils`, serving `packages/web/dist-static`):
+`rfutils`, serving `packages/web/dist-static`). A push to `main` deploys it through
+`.github/workflows/deploy.yml` (docs-only pushes are skipped), which runs the tests, builds it,
+smoke-checks the page and then runs `wrangler deploy`. By hand, it's:
 
 ```bash
 npm run build:static

@@ -33,8 +33,8 @@ Two consequences:
   ported from wsm-wwb-bridge were **byte-verified** against the Python originals. Preserve
   that standard: verify against a real artefact, not against your model of the format.
 
-**RFutils is now canonical.** MicWizard and `wsm-wwb-bridge` were retired in its favour in
-October 2026; their repos stay up (not archived), but new work happens here. The bridge's Python
+**RFutils is now canonical.** MicWizard, `wsm-wwb-bridge` and `pmse-to-wwb` were retired in its
+favour in October 2026; their repos stay up, archived on 11 October, and new work happens here. The bridge's Python
 parsers are pinned by `packages/server/test/bridgeGolden.test.ts` (its own output on its published
 samples, byte for byte, in `test/bridge-golden/`) and `bridgeParity.test.ts` (its unit tests,
 ported). A deliberate divergence from the bridge means updating those fixtures and saying why —
@@ -116,8 +116,9 @@ Things that legitimately need Node stay in `server/`: `inventory/store.ts`, `pro
 ### The two web builds
 
 `npm run build` targets the server; `npm run build:static` (`VITE_RFUTILS_STATIC=1`) produces the
-browser-only bundle. Cloudflare Pages builds it from this repo (`npm ci && npm run
-build:static`, output `packages/web/dist-static`) and serves it at the root of its own
+browser-only bundle. `.github/workflows/deploy.yml` builds it on a push to main (`npm ci`,
+`npm test`, `npm run build:static`, output `packages/web/dist-static`) and `wrangler deploy`
+uploads it to the `rfutils` Worker, which serves it at the root of its own
 domain — so the static build targets a root base path, not a `/RFutils/` subdirectory.
 
 `src/buildMode.ts` exports the `staticBuild` flag, and it lives alone in that file on purpose: it
@@ -127,8 +128,9 @@ has to be a bare compile-time constant so Vite can eliminate the `if (staticBuil
 dependency it never uses.
 
 **That elimination is load-bearing and it is version-sensitive — check it after any Vite
-upgrade.** The repo is pinned to Vite 6 (`overrides` in the root package.json forces `^6.4.3`
-across the tree, because vitest resolves a Vite of its own and npm otherwise pins it back). On
+upgrade.** The repo was pinned to Vite 6 until Dependabot's PR #12 (a5bcb51, 2026-08-11) took
+Vite 8 as a plain version bump; `overrides` in the root package.json now forces `^8.1.5`
+across the tree, because vitest resolves a Vite of its own and npm otherwise pins it back. On
 Vite 8 the branch is *not* eliminated: `import('./localApi.js')` survives and takes pdfjs with
 it, and the server build goes from one 221 kB chunk (236 K total) to eight chunks including a
 374 kB pdfjs one (792 K total) — 3.4× bigger, all of it dead code. Presumably rolldown folds
@@ -155,7 +157,7 @@ npm run dev          # server (port 8420) + web
 npm run dev:demo     # with mock devices - no hardware needed
 npm run dev:verify   # monitor disabled
 npm run build
-npm run build:static # browser-only bundle (Cloudflare Pages)
+npm run build:static # browser-only bundle (the rfutils Worker)
 npm run typecheck    # runs across shared, server and web
 npm test             # server package
 ```
@@ -216,9 +218,10 @@ rm -f package-lock.json && npm install                  # breaks Linux CI
 
 With `node_modules` still present npm builds the lock from what is on disk — this machine —
 and silently drops the `optionalDependencies` for every other platform. Linux CI then dies on
-`Cannot find module @rollup/rollup-linux-x64-gnu` (npm/cli#4828). A good lock has ~25
-`@rollup/rollup-*` entries and the matching `@esbuild/*` ones; grep for
-`@rollup/rollup-linux-x64-gnu` before committing.
+`Cannot find module @rollup/rollup-linux-x64-gnu` (npm/cli#4828; that was on Vite 6, which
+bundled with rollup). A good lock has 15 `@rolldown/binding-*` entries
+(it was ~25 `@rollup/rollup-*` on Vite 6) and the matching `@esbuild/*` ones; grep for
+`@rolldown/binding-linux-x64-gnu` before committing.
 
 ## Diagnostics
 

@@ -5,8 +5,8 @@ separate tools with one app: file conversion between Shure and Sennheiser ecosys
 licence import, live receiver monitoring, intermodulation-clean coordination, allocation, and
 programming receivers.
 
-**MicWizard and wsm-wwb-bridge are retired in favour of RFutils**, which now does everything they
-did. If you used either, start with [Coming from MicWizard or wsm-wwb-bridge](#coming-from-micwizard-or-wsm-wwb-bridge).
+**MicWizard, wsm-wwb-bridge and pmse-to-wwb are retired in favour of RFutils**, which now does
+everything they did. If you used MicWizard or the bridge, start with [Coming from MicWizard or wsm-wwb-bridge](#coming-from-micwizard-or-wsm-wwb-bridge).
 
 > **Before you rely on this for a show:** most of the file formats RFutils reads and writes are
 > *reverse-engineered from real exports*, because neither Shure nor Sennheiser publishes full

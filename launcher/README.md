@@ -14,8 +14,9 @@ Download the `.dmg` from
 > Nothing needs to be installed — no Node, no separate RFutils checkout. Just
 > download and run.
 
-> **Unsigned build.** On first launch macOS Gatekeeper will block it —
-> right-click the app → **Open** → **Open**, once.
+> **Signed and notarised.** Released macOS builds are Developer ID-signed and
+> notarised, so they open normally. A copy you build yourself isn't, and
+> [SIGNING.md](SIGNING.md) covers what that means and how to sign it.
 
 ## What it does
 

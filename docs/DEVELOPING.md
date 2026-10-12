@@ -7,7 +7,7 @@ that bite, read [`AGENTS.md`](../AGENTS.md) as well.
 
 ## Prerequisites
 
-Node.js with npm workspaces support (Node 18+). No other services or databases.
+Node.js with npm workspaces support (Node 22.13+). No other services or databases.
 
 ```bash
 git clone https://github.com/stoatworks-labs/RFutils
@@ -62,12 +62,12 @@ in the way.
 ```
 packages/
   shared/   Types + parsers (WSM, WWB, PMSE). Built first; consumed by both others.
-  server/   Express + ws backend
-    index.ts        Bootstrap, static hosting, WebSocket upgrade routing
-    routes.ts       The /api router
     formats/        Coordination file read/write + format detection
     pmse/           Ofcom PMSE PDF conversion
     coordination/   The coordination and analysis engine
+  server/   Express + ws backend
+    index.ts        Bootstrap, static hosting, WebSocket upgrade routing
+    routes.ts       The /api router
     inventory/      Inventory persistence
     profiles/       Device profile catalog
     plugins/        Plugin registry
@@ -135,8 +135,8 @@ the code proves nothing.
 
 ## Gotchas worth knowing
 
-- **Two WebSocket endpoints share one HTTP server** via a single
-  `WebSocketServer({ noServer: true })` with manual upgrade routing by pathname. Passing
+- **Two WebSocket endpoints share one HTTP server** via two
+  `WebSocketServer({ noServer: true })` instances and one manual upgrade router by pathname. Passing
   `{ server, path }` to two separate `WebSocketServer` instances makes each reject the
   other's upgrades with a 400. Don't "simplify" it.
 - **Uploads strip a leading BOM** before parsing — exports from Windows tools frequently
