@@ -1,20 +1,21 @@
 # RFutils
 
 > **AI-assisted project.** This codebase was created with [Claude Code](https://claude.com/claude-code)
-> (Anthropic), directed and reviewed by a human author. It merges three earlier tools into one
-> package; several of the underlying formats and protocols are reverse-engineered from real exports
-> and vendor gear rather than official schemas (neither Shure nor Sennheiser publish full specs for
-> most of these). **Verify every export against your own WWB/WSM install, and check experimental
-> outputs carefully, before relying on any of this for a live show.**
+> (Anthropic), directed and reviewed by a human author. It's three earlier tools merged into one
+> package. Several of the formats and protocols underneath are reverse-engineered from real exports
+> and vendor gear rather than official schemas, since neither Shure nor Sennheiser publishes full
+> specs for most of them. **Check every export against your own WWB/WSM install, and go over the
+> experimental outputs carefully, before you rely on any of this for a live show.**
 
-A browser-based RF-coordination and wireless-mic suite that unifies three separate tools into one
-package, with room to grow into full frequency coordination, allocation, and deployment services:
+RFutils is a browser-based RF coordination and wireless-mic suite. It brings three separate tools
+together in one package, with room to grow into full frequency coordination, allocation and
+deployment:
 
 [![Watch RFutils running — 50 seconds](docs/video-thumb.png)](https://www.youtube.com/watch?v=8f6VZ9qt1kw)
 
-*A 50-second tour. Every frame is the real application: a genuine 291-channel Wireless Workbench
-report goes into Convert, and the eight frequencies in Coordination are computed live. The
-receivers in Monitor are the app's mock devices — no wireless rack was attached.*
+*A 50-second tour. Every frame is the app itself: an actual 291-channel Wireless Workbench report
+goes into Convert, and the eight frequencies in Coordination are worked out live. The receivers in
+Monitor are the app's mock devices, as there wasn't a wireless rack attached.*
 
 | Merged tool | What it did | Where it lives now |
 |---|---|---|
@@ -23,7 +24,7 @@ receivers in Monitor are the app's mock devices — no wireless rack was attache
 | [MicWizard](https://github.com/stoatworks-labs/MicWizard) | Discover networked Shure/Sennheiser/AES67 receivers and monitor audio / battery / RF | **Monitor** |
 
 **MicWizard and wsm-wwb-bridge are retired in favour of RFutils**, which now covers everything they
-did. Their repositories and past releases stay where they are; new work happens here. Moving
+did. Their repositories and past releases are staying put, but new work happens here. Moving
 across? See [Coming from MicWizard or wsm-wwb-bridge](#coming-from-micwizard-or-wsm-wwb-bridge).
 
 ```mermaid
@@ -45,8 +46,8 @@ flowchart LR
     P -. program .-> D
 ```
 
-Everything routes through **one internal channel model** (`packages/shared`), so any supported input
-can be re-exported as any supported output, and the same model feeds coordination, allocation, and
+Everything goes through **one internal channel model** (`packages/shared`), so any input it reads
+can go back out as any output it writes, and the same model feeds coordination, allocation and
 deployment.
 
 ![RFutils Convert tab: a Sennheiser WSM Coordination Report parsed into the channel table with an export-format picker](docs/screenshots/convert-coordination.png)
@@ -101,13 +102,13 @@ macOS builds are signed and notarised and open normally. The Windows builds are 
 
 The conversion and coordination half of RFutils runs entirely in a browser, hosted at
 **<https://rfutils.stoatworks-labs.com>**. Drop in a WWB/WSM export or an Ofcom PMSE licence PDF
-and get your files back — **nothing is uploaded**: the parsers, the `.shw` generator and the
-coordination engine all execute on your own machine, in the page. Your licence PDF never leaves
+and get your files back. **Nothing is uploaded**: the parsers, the `.shw` generator and the
+coordination engine all run on your own machine, in the page, so your licence PDF never leaves
 your laptop.
 
-The hosted build has **Convert, Coordination, Inventory and Allocation**. It does not have
+The hosted build has **Convert, Coordination, Inventory and Allocation**. It doesn't have
 **Monitor** or **Deployment**: discovering receivers (mDNS), decoding AES67 audio and programming
-frequencies over TCP need sockets a web page cannot open. For those, run RFutils locally.
+frequencies over TCP all need sockets a web page can't open. For those, run RFutils locally.
 
 ## Coming from MicWizard or wsm-wwb-bridge
 
@@ -116,36 +117,36 @@ frequencies over TCP need sockets a web page cannot open. For those, run RFutils
 - Everything the bridge read and wrote is in **Convert**: drop the file, check the preview, pick
   the export. An unrecognised CSV gets the same column-mapping step. It also runs in the hosted
   page above, with nothing to install.
-- **The output is the bridge's.** RFutils' test suite runs every reader and all four writers
+- **You get the bridge's output.** RFutils' test suite checks every reader and all four writers
   against what the bridge's own Python produced for the sample files it publishes, byte for byte,
-  and carries its unit tests over assertion for assertion. The two places the TypeScript port
+  and brings its unit tests across assertion for assertion. The two places the TypeScript port
   used to differ now match the bridge: a frequency exactly halfway between two kHz values
   (512.0625 MHz is 512.062, rounded to even, as Python does) and a WWB group/channel written with
   spaces (`G: 01 Ch: 05`). The seven real vendor exports in RFutils' test fixtures come out
-  identical in both tools as well.
-- The bridge kept no settings, so there is nothing to migrate.
+  identical in both tools too.
+- The bridge didn't keep any settings, so there's nothing to migrate.
 
 ### MicWizard → Monitor
 
 - **Monitor is MicWizard's main view**: discovery, audio/RF meters, battery, the headphone cue,
   Dante routing through Companion, and **Diagnostics** (at the bottom of every page).
-- It is a web app now. Start the desktop app (or `npm run dev`) and **open it on the same machine
-  as `http://localhost:8420`** — browsers only allow audio devices, and so the headphone cue, on
+- It's a web app now. Start the desktop app (or `npm run dev`) and **open it on the same machine
+  as `http://localhost:8420`** for the headphone cue. Browsers only allow audio devices on
   `localhost` or HTTPS, not on `http://192.168.x.x`.
 - **Your Companion setup moves.** MicWizard read `companion-routes.json` from
   `~/Library/Application Support/MicWizard/` (macOS; `%APPDATA%\MicWizard\` on Windows,
   `~/.config/MicWizard/` on Linux). RFutils reads `~/.rfutils/companion-routes.json`, or the
-  directory in `RFUTILS_CONFIG_DIR`. The file is the same shape, so your Companion buttons keep
+  directory in `RFUTILS_CONFIG_DIR`. The file's the same shape, so your Companion buttons keep
   working: while RFutils has no config of its own, the Monitor tab offers **Import from
-  MicWizard**, which copies it across once and never overwrites one. By hand it is:
+  MicWizard**, which copies it across once and never overwrites one. By hand, it's:
 
   ```bash
   mkdir -p ~/.rfutils
   cp ~/Library/Application\ Support/MicWizard/companion-routes.json ~/.rfutils/
   ```
 
-- **USB-input mappings do not carry over** — MicWizard kept them inside its own window. Click 🎧
-  on each analogue channel once to map it again.
+- **USB-input mappings don't carry over**, because MicWizard kept them inside its own window.
+  Click 🎧 on each analogue channel once to map it again.
 - MicWizard's last two monitoring fixes are in RFutils too: Sennheiser receivers found over mDNS
   are connected to and metered, and a Shure channel name with a space in it no longer freezes that
   channel's meters. Neither has been run against a real receiver yet.
@@ -154,32 +155,33 @@ frequencies over TCP need sockets a web page cannot open. For those, run RFutils
 
 An npm-workspaces monorepo:
 
-- **`packages/shared`** — the internal data model and wire types (`Channel` / `CoordinationList`,
-  PMSE `Assignment`, `DiscoveredDevice`, the WebSocket protocol) **and all the pure logic**: the
-  WSM/WWB/CSV parsers and writers (`shared/formats`), the PMSE PDF parser, exporters and `.shw`
-  generator (`shared/pmse`), and the coordination engine (`shared/coordination`). None of it
-  touches a Node API, which is what lets the same code run on the server and in the browser.
-- **`packages/server`** — a Node ([Express](https://expressjs.com) + [ws](https://github.com/websockets/ws))
-  server. It exposes the shared logic over `/api` **and** owns the raw sockets a browser can't
+- **`packages/shared`** holds the internal data model and wire types (`Channel` /
+  `CoordinationList`, PMSE `Assignment`, `DiscoveredDevice`, the WebSocket protocol) **and all
+  the pure logic**: the WSM/WWB/CSV parsers and writers (`shared/formats`), the PMSE PDF parser,
+  exporters and `.shw` generator (`shared/pmse`), and the coordination engine
+  (`shared/coordination`). None of it touches a Node API, which is what lets the same code run
+  on the server and in the browser.
+- **`packages/server`** is a Node ([Express](https://expressjs.com) + [ws](https://github.com/websockets/ws))
+  server. It serves the shared logic over `/api` **and** owns the raw sockets a browser can't
   open: mDNS, Shure's TCP command protocol, and AES67/SAP multicast.
-- **`packages/web`** — the React/Vite single-page app (ported from MicWizard's renderer plus new
-  conversion UI). Built twice: against the server (`npm run build`), and standalone for hosting
-  (`npm run build:static`), where `src/localApi.ts` calls the shared logic directly instead of
-  `fetch('/api/…')`.
+- **`packages/web`** is the React/Vite single-page app (MicWizard's renderer, ported, plus a new
+  conversion UI). It's built twice: against the server (`npm run build`), and standalone for
+  hosting (`npm run build:static`), where `src/localApi.ts` calls the shared logic directly
+  instead of `fetch('/api/…')`.
 
-The two file tools were originally Python (a tkinter desktop app and a FastAPI service); their
-parsers were ported to TypeScript and are held to the originals' output.
+The two file tools started out in Python (a tkinter desktop app and a FastAPI service). Their
+parsers were ported to TypeScript and are held to the originals' output:
 [`bridgeGolden.test.ts`](packages/server/test/bridgeGolden.test.ts) compares every reader and
 writer with what wsm-wwb-bridge's own Python produced for its published sample files
 ([`bridge-golden/`](packages/server/test/bridge-golden/), regenerated by `generate.py` there), and
-[`bridgeParity.test.ts`](packages/server/test/bridgeParity.test.ts) is the bridge's unit-test suite
+[`bridgeParity.test.ts`](packages/server/test/bridgeParity.test.ts) is the bridge's unit-test suite,
 ported assertion for assertion. The PMSE parser was validated against a real Ofcom licence.
-MicWizard's networking was already TypeScript and moved from its Electron main process into this
-server largely intact, along with its tests.
+MicWizard's networking was already TypeScript, and moved from its Electron main process into this
+server largely intact, tests and all.
 
 ## Running it
 
-Requires Node 18+ (developed against Node 22/26).
+Needs Node 18+ (I develop against Node 22/26).
 
 ```bash
 npm install
@@ -196,8 +198,8 @@ npm start -w @rfutils/server   # serves the built UI + API on :8420
 ```
 
 Other scripts: `npm run typecheck` (all packages), `npm test` (server parser tests),
-`npm run dev:demo` (like `dev`, but seeds simulated receivers so the Monitor tab is populated
-without any hardware — how the Monitor screenshot above was captured).
+`npm run dev:demo` (like `dev`, but seeds simulated receivers so the Monitor tab fills up
+without any hardware, which is how the Monitor screenshot was captured).
 
 To build the browser-only version:
 
@@ -206,7 +208,7 @@ npm run build:static     # -> packages/web/dist-static
 npm run preview:static   # serve that build locally
 ```
 
-It is published to a **static-assets-only Cloudflare Worker** (`wrangler.toml`, worker
+It's published to a **static-assets-only Cloudflare Worker** (`wrangler.toml`, worker
 `rfutils`, serving `packages/web/dist-static`):
 
 ```bash
@@ -214,118 +216,119 @@ npm run build:static
 cf-run npx wrangler deploy
 ```
 
-**`wrangler deploy` runs no build.** It uploads `packages/web/dist-static` exactly as it
-finds it, so the build has to come first — skip it and the deploy reports a clean success
-while republishing the previous build.
+**`wrangler deploy` doesn't run a build.** It uploads `packages/web/dist-static` as it finds it,
+so the build has to come first. Skip it and the deploy reports a clean success while cheerfully
+republishing the previous build.
 
 The build targets a root base path, since the worker serves at the root of its own domain.
 Set `RFUTILS_BASE=/somewhere/` to host it under a subdirectory instead.
 
 ### Environment
 
-- `RFUTILS_SERVER_PORT` — server port (default `8420`).
-- `RFUTILS_DISABLE_MONITOR=1` — skip network device discovery (file conversion still works).
-- `RFUTILS_MOCK_DEVICES=1` — seed simulated receivers into the Monitor dashboard (demo/dev).
-- `RFUTILS_CONFIG_DIR` — where `companion-routes.json` is read from (default `~/.rfutils`).
+- `RFUTILS_SERVER_PORT`: server port (default `8420`).
+- `RFUTILS_DISABLE_MONITOR=1`: skip network device discovery (file conversion still works).
+- `RFUTILS_MOCK_DEVICES=1`: seed simulated receivers into the Monitor dashboard (demo/dev).
+- `RFUTILS_CONFIG_DIR`: where `companion-routes.json` is read from (default `~/.rfutils`).
 - `RFUTILS_CAPTURE_DEVICE` / `_FORMAT` / `_CHANNEL` / `_RATE`, `RFUTILS_FFMPEG`,
-  `RFUTILS_CAPTURE_CMD`, `RFUTILS_CUE_BUS_DEVICE` / `_CHANNEL`, `RFUTILS_CUE_SRC_DEVICE` — audio
+  `RFUTILS_CAPTURE_CMD`, `RFUTILS_CUE_BUS_DEVICE` / `_CHANNEL`, `RFUTILS_CUE_SRC_DEVICE`: audio
   capture (DVS/Dante interface) cue mode; see [Audio cueing](#audio-cueing-to-headphones).
 
 ### Desktop app
 
-Prefer not to touch the terminal? A small menu-bar app lets you pick the network
-interface + port, Start/Stop the server, and open the web UI. It's **fully
-self-contained** — the `.dmg` embeds a Node runtime plus the whole app (server +
-built web UI), so nothing needs to be installed, not even Node. Grab it from
+Rather not touch the terminal? A small menu-bar app lets you pick the network interface and
+port, start and stop the server, and open the web UI. It's **fully self-contained**: the `.dmg`
+embeds a Node runtime plus the whole app (server and built web UI), so there's nothing to
+install, not even Node. Grab it from
 [Releases](https://github.com/stoatworks-labs/RFutils/releases), or see
-[launcher/](launcher/) to build it. The `.dmg` is **unsigned** — see
+[launcher/](launcher/) to build it. The `.dmg` is **unsigned**, so see
 [Unsigned builds](#unsigned-builds--gatekeeper-smartscreen--defender-firewall)
 for first-launch and firewall notes. If you ever get an Apple Developer account,
 [launcher/SIGNING.md](launcher/SIGNING.md) shows how to turn signing on; until
-then it's not needed.
+then you don't need it.
 
 <p align="center"><img src="launcher/docs/panel.png" width="300" alt="RFutils desktop app"></p>
 
 ### Diagnostics
 
 If something goes wrong, open **Diagnostics** at the bottom of the page and press **Collect
-diagnostics**: your browser downloads one JSON file holding the logs, the version, the settings
-with anything password-shaped removed, and any recent crash report — attach it to the bug report.
-A copy is kept on the machine RFutils runs on (`~/Library/Logs/rfutils/` on macOS), and **Open log
-folder** shows it. From a terminal, `npm start -w @rfutils/server -- --collect-diagnostics` writes
-the same file and prints its path. See [docs/diagnostics.md](docs/diagnostics.md).
+diagnostics**. Your browser downloads one JSON file holding the logs, the version, the settings
+with anything password-shaped removed, and any recent crash report. Attach that to the bug
+report. A copy is kept on the machine RFutils runs on (`~/Library/Logs/rfutils/` on macOS), and
+**Open log folder** shows it. From a terminal, `npm start -w @rfutils/server -- --collect-diagnostics`
+writes the same file and prints its path. See [docs/diagnostics.md](docs/diagnostics.md).
 
 ## Convert
 
-One drop zone takes everything below. RFutils reads the file's own bytes to decide what it is
-— a PDF goes to the Ofcom licence parser, anything else to the coordination-file detector — so
-there is nothing to select first, and a licence dragged straight out of an email with no
-extension still lands in the right place.
+One drop zone takes everything below. RFutils reads the file's own bytes to decide what it is (a
+PDF goes to the Ofcom licence parser, anything else to the coordination-file detector), so
+there's nothing to pick first, and a licence dragged straight out of an email with no extension
+still lands in the right place.
 
 ### Coordination files (WSM · WWB · CSV)
 
-Drop a file and RFutils auto-detects its shape, previews the parsed channels, and lets you
-re-export to any supported format:
+Drop a file and RFutils works out its shape, shows you the parsed channels, and lets you
+re-export them to any supported format:
 
 **Reads:** Shure `.shw` / `.cws` (native WWB XML), Sennheiser `.wsm` project files, WSM HTML
 "Coordination Report", WSM Frequencies/Bands CSV, WWB Coordination Report CSV, a bare frequency
-list, or any other CSV via a column-mapping dialog — which appears even when none of the
-headers could be guessed, so an unfamiliar spreadsheet is a mapping away rather than a dead end.
+list, or any other CSV through a column-mapping dialog. The dialog appears even when it couldn't
+guess any of the headers, so an unfamiliar spreadsheet is a mapping away rather than a dead end.
 
 **Writes:** WWB frequency list (`.txt`, the safe documented import format), WWB inventory CSV,
 WSM Frequencies/Bands CSV, a generic CSV, or an experimental WWB7 `.shw` show file.
 
 ### Ofcom PMSE licence (PDF)
 
-Drop an Ofcom PMSE licence schedule PDF into the same zone to generate a WWB frequency list
+Drop an Ofcom PMSE licence schedule PDF into the same zone to get a WWB frequency list
 (`.txt`), a reference sheet (`.csv`) mapping frequencies to suggested names and coordination
 groups, and an experimental `.shw` show file.
 
 ![RFutils PMSE tab: a licence schedule PDF parsed into licence metadata, download buttons, and an assignment table](docs/screenshots/convert-pmse.png)
 
-*Screenshot uses a synthetic licence with invented details — not a real licence.*
+*The screenshot uses a synthetic licence with invented details, not a real one.*
 
 > **PDF parsing.** The original `pmse-to-wwb` used Python's `pdfplumber` for table detection.
 > `pdfjs-dist` has no table detector, so this port buckets positioned text into the fixed Ofcom
-> ST16 template's columns (scaled by page width) and merges the multiple physical lines per row.
-> It's been validated against a real Ofcom PMSE licence schedule — all 116 assignments,
+> ST16 template's columns (scaled by page width) and merges the several physical lines in each
+> row. It's been validated against a real Ofcom PMSE licence schedule: all 116 assignments,
 > frequencies, sites, periods, fees and header metadata parse correctly. The column geometry is
-> calibrated to that fixed template; a materially different Ofcom template revision would need
-> re-calibration, so it's still wise to sanity-check the parsed assignments against the source PDF.
+> calibrated to that fixed template, and a materially different revision of it from Ofcom would
+> need recalibrating, so it's still worth sanity-checking the parsed assignments against the
+> source PDF.
 
 > ⚠️ The `.shw` show file (both here and in the coordination exporter) is reverse-engineered from a
-> single real WWB7 file and unvalidated by Shure. Open it in Wireless Workbench and check it before
-> relying on it for a real show; when in doubt, use the frequency list.
+> single real WWB7 file and hasn't been validated by Shure. Open it in Wireless Workbench and check
+> it before relying on it for a real show; when in doubt, use the frequency list.
 
 ## Monitor
 
-Live discovery and metering of wireless receivers on the local network — Shure (TCP command
-strings, port 2202), Sennheiser (SSC), and AES67/Dante (mDNS + SAP), with per-channel audio,
-battery, and RF telemetry pushed to the browser over WebSocket.
+Monitor finds wireless receivers on the local network and meters them live: Shure (TCP command
+strings, port 2202), Sennheiser (SSC) and AES67/Dante (mDNS + SAP), with per-channel audio,
+battery and RF telemetry pushed to the browser over WebSocket.
 
 ![RFutils Monitor tab: Shure, Sennheiser and AES67 receiver cards with per-channel audio/RF meters, battery gauges, and a headphone cue button active on an AES67 channel](docs/screenshots/monitor.png)
 
-*Screenshot captured with `RFUTILS_MOCK_DEVICES=1` (simulated receivers) — no real hardware was on the network. The highlighted headphone button on an AES67 channel is an active audio cue.*
+*Captured with `RFUTILS_MOCK_DEVICES=1` (simulated receivers), with no actual hardware on the network. The highlighted headphone button on an AES67 channel is an active audio cue.*
 
-> **Not yet hardware-tested.** As in MicWizard, the vendor protocol adapters are built from a mix of
-> public documentation and best-effort reverse engineering and have not been validated against real
-> receivers. The Sennheiser SSC adapter in particular is a skeleton: it now connects to every
+> **Not yet hardware-tested.** As in MicWizard, the vendor protocol adapters are built from a mix
+> of public documentation and best-effort reverse engineering, and haven't been validated against
+> real receivers. The Sennheiser SSC adapter in particular is a skeleton: it connects to every
 > receiver mDNS finds and reads its metering every second, but the SSC paths it reads are
-> unverified guesses, tested only against a fake receiver on localhost.
+> unverified guesses, only tested against a fake receiver on localhost.
 >
-> This is unchanged by [`docs/SHURE-ACN.md`](docs/SHURE-ACN.md), which *is* built from real Shure
-> QLXD4 hardware — but documents a **different protocol** (ANSI E1.17 / ACN, the path a Yamaha
+> [`docs/SHURE-ACN.md`](docs/SHURE-ACN.md) doesn't change that. It *is* built from real Shure
+> QLXD4 hardware, but it documents a **different protocol** (ANSI E1.17 / ACN, the path a Yamaha
 > console uses when a receiver is mounted on it), not the Command Strings interface these adapters
-> speak. Real gear was on the network, and it still didn't test this code.
+> speak. So real gear was on the network, and it still didn't test this code.
 
-**Got gear we don't support?** Wisycom, Sony DWX, Sound Devices and MiPro all have real network
-control protocols that nobody has published — and the Lectrosonics adapter is already written and
-waiting on [one file's worth](packages/server/src/monitor/discovery/lectrosonicsProtocol.ts) of
-correct wire format. Five minutes of a receiver doing something ordinary, recorded with Wireshark,
-is enough to start from. **[docs/capture-guide.md](docs/capture-guide.md)** walks through it: for
-most people it's "run Wireshark on the same laptop as the vendor software" and nothing else, and
-there's a mirror-port recipe for the cases where it isn't. See [`docs/BRANDS.md`](docs/BRANDS.md)
-for what's supported today.
+**Got gear I don't support?** Wisycom, Sony DWX, Sound Devices and MiPro all have proper network
+control protocols, and nobody has published any of them. The Lectrosonics adapter is already
+written and waiting on [one file's worth](packages/server/src/monitor/discovery/lectrosonicsProtocol.ts)
+of correct wire format. Five minutes of a receiver doing something ordinary, recorded with
+Wireshark, is enough to start from. **[docs/capture-guide.md](docs/capture-guide.md)** walks you
+through it. For most people it's "run Wireshark on the same laptop as the vendor software" and
+nothing else, and there's a mirror-port recipe for when it isn't. [`docs/BRANDS.md`](docs/BRANDS.md)
+lists what's supported today.
 
 There's a 57-second video on why, covering this project and
 [Dante-BabelBox](https://github.com/stoatworks-labs/Dante-BabelBox) together:
@@ -334,24 +337,24 @@ There's a 57-second video on why, covering this project and
 ### Audio cueing to headphones
 
 A browser can't join a Dante/AES67 multicast group directly, so cueing network audio to
-headphones works by **relay**: the server sends a cued channel to the browser as PCM16 mono over a
-dedicated binary WebSocket (`/ws/audio`), and an `AudioWorklet` ring buffer plays it out with a
+headphones works by **relay**: the server sends a cued channel to the browser as PCM16 mono over
+its own binary WebSocket (`/ws/audio`), and an `AudioWorklet` ring buffer plays it out with a
 small jitter buffer. Only cued channels are streamed (~0.77 Mbit/s each at 48 kHz).
 
 The **cue bar** above the receivers sets how it plays:
 
-- **Solo** (the default): one channel at a time — a new cue replaces the last, like a hardware
+- **Solo** (the default): one channel at a time, so a new cue replaces the last, like a hardware
   PFL/cue bus. Untick it to **Mix** several, each with its own meter.
 - **Output**: headphones, a USB interface, any output the OS offers. Chrome and Edge can choose;
   Safari and Firefox play through the system output. The choice is remembered per browser.
 
 **Open RFutils as `http://localhost:<port>` on the machine it runs on** (or over HTTPS) to cue at
 all: browsers only allow audio devices and the `AudioWorklet` on a secure page, and
-`http://192.168.x.x` is not one. The cue bar says so when it can't.
+`http://192.168.x.x` isn't one. The cue bar says so when it can't.
 
 There are three ways to get a channel's audio to the cue:
 
-**1. Capture mode — a Dante interface (DVS) + Companion (recommended).** Let a vendor Dante
+**1. Capture mode: a Dante interface (DVS) + Companion (recommended).** Let a vendor Dante
 endpoint do the decode and let Companion do the routing:
 
 ```
@@ -361,44 +364,46 @@ Mic TX ──(Dante)──▶ [Companion re-points one crosspoint] ──▶ DVS
                                     RFutils server captures that channel with ffmpeg ──PCM16/WS──▶ browser 🎧
 ```
 
-Clicking 🎧 on any channel best-effort asks Companion to route it to the cue-bus destination, then
-streams the captured bus. This offloads the Dante decode to supported vendor software and reuses the
-Companion integration below. Enable it by pointing the server at the interface's input:
+Clicking 🎧 on any channel asks Companion, best effort, to route it to the cue-bus destination,
+then streams the captured bus. That hands the Dante decode to supported vendor software and
+reuses the Companion integration below. Turn it on by pointing the server at the interface's
+input:
 
-- `RFUTILS_CAPTURE_DEVICE` — ffmpeg input device (e.g. `":2"` for an avfoundation index on macOS;
+- `RFUTILS_CAPTURE_DEVICE`: ffmpeg input device (e.g. `":2"` for an avfoundation index on macOS;
   list devices with `ffmpeg -f avfoundation -list_devices true -i ""`). Setting this switches the
   app into capture mode, and **every** channel becomes cueable.
-- `RFUTILS_CAPTURE_FORMAT` — ffmpeg input format (default `avfoundation`/`dshow`/`alsa` by OS).
-- `RFUTILS_CAPTURE_CHANNEL` — 0-based input channel to use as the cue bus (default `0`).
-- `RFUTILS_CAPTURE_RATE` — sample rate (default `48000`); `RFUTILS_FFMPEG` — ffmpeg path.
-- `RFUTILS_CAPTURE_CMD` — full override: any command emitting `s16le` mono to stdout (bypasses the
+- `RFUTILS_CAPTURE_FORMAT`: ffmpeg input format (default `avfoundation`/`dshow`/`alsa` by OS).
+- `RFUTILS_CAPTURE_CHANNEL`: 0-based input channel to use as the cue bus (default `0`).
+- `RFUTILS_CAPTURE_RATE`: sample rate (default `48000`); `RFUTILS_FFMPEG`: ffmpeg path.
+- `RFUTILS_CAPTURE_CMD`: full override, any command emitting `s16le` mono to stdout (bypasses the
   ffmpeg args above). `npm run dev:capture-demo` uses this with a `sox` test tone.
-- `RFUTILS_CUE_BUS_DEVICE` / `RFUTILS_CUE_BUS_CHANNEL` — the Dante Controller destination Companion
+- `RFUTILS_CUE_BUS_DEVICE` / `RFUTILS_CUE_BUS_CHANNEL`: the Dante Controller destination Companion
   routes mics to (the DVS Rx channel the server captures). Without these, cueing just streams the
-  bus and you route manually. The source name sent to Companion is the discovered channel's name
+  bus and you route by hand. The source name sent to Companion is the discovered channel's name
   (override the device with `RFUTILS_CUE_SRC_DEVICE`); **these must match your Dante Controller
   labels** for auto-routing to hit the right crosspoint. ffmpeg needs installing (`brew install
   ffmpeg`). A fast/bursty source is throttled to real time by a server-side pacer.
 
 **2. Direct AES67 mode (default, no config).** If no capture device is set, the server decodes
-AES67 multicast itself and 🎧 plays that channel's own audio. Cueable **AES67 channels only** —
-Shure/Sennheiser command protocols carry telemetry, not audio, and native-only Dante still needs
-Audinate's SDK, so a Dante device must be in AES67 mode.
+AES67 multicast itself and 🎧 plays that channel's own audio. Only **AES67 channels** can be
+cued this way: Shure/Sennheiser command protocols carry telemetry, not audio, and native-only
+Dante still needs Audinate's SDK, so a Dante device has to be in AES67 mode.
 
 **3. A USB interface, for receivers with no network audio.** An analogue receiver (or any channel
 the server can't cue) patched into a USB audio interface is cued in the browser itself, as
-MicWizard did: click its 🎧 once, choose the interface — the whole device, or the one input it is
-plugged into, sent to both ears — and from then on 🎧 plays that input. The browser asks once for
-microphone permission, which is how it shows device names and opens inputs. The mapping is kept
-per browser; × removes it.
+MicWizard did. Click its 🎧 once and choose the interface (the whole device, or the one input
+it's plugged into, sent to both ears), and from then on 🎧 plays that input. The browser asks
+once for microphone permission, which is how it shows device names and opens inputs. The mapping
+is kept per browser; × removes it.
 
-**Modes 1 and 2** share the same PCM16/WebSocket/AudioWorklet playback path, verified end-to-end
-with a synthetic tone (the browser analyser reads the expected level) — direct mode via
-`RFUTILS_MOCK_DEVICES`, capture mode via `dev:capture-demo`. Solo, Mix, the output picker and the
-USB path were exercised in demo mode in Chromium against a stubbed two-input device. Latency is
-~100–200 ms (fine for identifying a mic, not for sample-accurate work); lower-latency Opus/WebRTC
-transport is a natural future upgrade. The real-Dante decode and capture-device paths, a real USB
-interface and a real output switch remain hardware-untested.
+**Modes 1 and 2** share the same PCM16/WebSocket/AudioWorklet playback path, verified end to end
+with a synthetic tone (the browser analyser reads the expected level): direct mode with
+`RFUTILS_MOCK_DEVICES`, capture mode with `dev:capture-demo`. Solo, Mix, the output picker and the
+USB path were tried in demo mode in Chromium against a stubbed two-input device. Latency is
+~100–200 ms, which is fine for working out which mic is which but no good for sample-accurate
+work; a lower-latency Opus/WebRTC transport would be the obvious upgrade. The real-Dante decode
+and capture-device paths, a real USB interface and a real output switch are still
+hardware-untested.
 
 ### Dante routing via Companion (optional)
 
@@ -406,70 +411,71 @@ Off by default. To route Dante crosspoints from the Monitor tab, run your own
 [Bitfocus Companion](https://bitfocus.io/companion) with a single "Make Crosspoint" button wired to
 `companion-module-audinate-dantecontroller`, then copy `companion-routes.example.json` to
 `~/.rfutils/companion-routes.json` (or `$RFUTILS_CONFIG_DIR`). RFutils just sets four Companion
-custom variables and presses your button — it has no Dante integration of its own, and full Dante
-API control still requires Audinate's SDK (see `packages/server/src/monitor/audio/danteApi.ts`).
+custom variables and presses your button. It has no Dante integration of its own, and full Dante
+API control still needs Audinate's SDK (see `packages/server/src/monitor/audio/danteApi.ts`).
 
-Already set this up in MicWizard? It is the same file: the Monitor tab offers **Import from
+Already set this up in MicWizard? It's the same file: the Monitor tab offers **Import from
 MicWizard** while RFutils has none of its own (see
 [Coming from MicWizard](#micwizard--monitor)).
 
 ## Coordinate
 
-Compute a set of mutually-compatible frequencies. Pick an **equipment profile** (Shure, Sennheiser,
-Wisycom, Lectrosonics, Audio-Technica, Sony …), then the **frequency band variant you actually
-own** — a ULX-D G51 (470–534) coordinates differently from an H50 (534–598) — and the **operating
-mode**, because required spacing is a property of the mode, not the product: Shure Axient Digital
-wants 350 kHz in standard mode and 125 kHz in High Density, Sennheiser EW-DX 600 kHz standard and
-300 kHz in Link Density. A **band preset** (UK Ch38, UK/US UHF core, Ch70, 2.4 GHz …) still covers
-the separate question of what your licence allows.
+Coordinate works out a set of mutually compatible frequencies. Pick an **equipment profile**
+(Shure, Sennheiser, Wisycom, Lectrosonics, Audio-Technica, Sony …), then the **frequency band
+variant you actually own**, since a ULX-D G51 (470–534) coordinates differently from an H50
+(534–598). Then pick the **operating mode**, because the spacing you need belongs to the mode,
+not the product: Shure Axient Digital wants 350 kHz in standard mode and 125 kHz in High Density,
+Sennheiser EW-DX 600 kHz standard and 300 kHz in Link Density. A **band preset** (UK Ch38, UK/US
+UHF core, Ch70, 2.4 GHz …) still covers the separate question of what your licence allows.
 
-Those numbers are quoted from manufacturer documentation, and the app shows you which is which:
-each figure is labelled *from the manufacturer's documentation*, *calculated from published
+Those numbers come from manufacturer documentation, and the app tells you which is which: each
+figure is labelled *from the manufacturer's documentation*, *calculated from published
 figures*, or *no source — assumed, verify before a show*, with the URL it came from. Shure,
-Sennheiser, Lectrosonics and Wisycom are researched; the rest of the catalog still carries
-placeholders and says so. See [`packages/shared/src/rf/`](packages/shared/src/rf/).
+Sennheiser, Lectrosonics and Wisycom are researched. The rest of the catalogue still has
+placeholders, and says so. See [`packages/shared/src/rf/`](packages/shared/src/rf/).
 
 Three consequences worth knowing:
 
-- **Occupied bandwidth is not the spacing to coordinate at.** A PSM 1000 occupies ~175 kHz but
+- **Occupied bandwidth isn't the spacing to coordinate at.** A PSM 1000 occupies ~175 kHz but
   Shure's own compatible-frequency count implies ~1.85 MHz of separation. Both are shown.
 - **Bands with gaps are respected.** Axient Digital G55, G57, K53, K54 and Shure P55, SLX-D J52
-  and M55, Sennheiser U1/5 and every Wisycom MCR54 version are discontiguous — nothing is placed
-  in a gap the radio cannot tune.
-- **Sennheiser digital gear is placed on an equidistant grid**, not by IM search, because that is
-  how the vendor designed it to be deployed.
+  and M55, Sennheiser U1/5 and every Wisycom MCR54 version are discontiguous, and nothing gets
+  placed in a gap the radio can't tune.
+- **Sennheiser digital gear is placed on an equidistant grid**, not by IM search, because that's
+  how Sennheiser designed it to be deployed.
 
-Mixed rigs coordinate correctly: between any two radios the wider of the two spacing requirements
-applies, each radio keeps its own tuning raster (Wisycom is 5 kHz, not 25), and occupied bandwidths
-are never allowed to overlap. The catalog is user-extensible via `~/.rfutils/profiles.json`.
+Mixed rigs coordinate properly: between any two radios the wider of the two spacing requirements
+applies, each radio keeps its own tuning raster (Wisycom is 5 kHz, not 25), and occupied
+bandwidths are never allowed to overlap. You can add to the catalogue in
+`~/.rfutils/profiles.json`.
 
-Then set how many you need and the IM options; the engine builds each radio's candidate grid
-(its band ∩ your ranges, minus exclusions + guard) and places
-carriers that are adequately spaced and free of third-order (`2·f1−f2`, `f1+f2−f3`) and optional
-fifth-order (`3·f1−2·f2`) intermodulation products landing on any carrier. Lock existing
-frequencies to coordinate around them, re-check the result for conflicts, and export straight to
-any WWB/WSM format. Works on an integer-kHz raster and is deterministic (seeded), so a given request
-always reproduces. See [`coordination/engine.ts`](packages/shared/src/coordination/engine.ts).
+Then set how many you need and the IM options. The engine builds each radio's candidate grid
+(its band ∩ your ranges, minus exclusions + guard) and places carriers that are spaced far enough
+apart and free of third-order (`2·f1−f2`, `f1+f2−f3`) and, optionally, fifth-order (`3·f1−2·f2`)
+intermodulation products landing on any carrier. Lock existing frequencies to coordinate around
+them, re-check the result for conflicts, and export straight to any WWB/WSM format. It works on
+an integer-kHz raster and it's deterministic (seeded), so the same request always gives the same
+answer. See [`coordination/engine.ts`](packages/shared/src/coordination/engine.ts).
 
 ![RFutils Coordination tab: an equipment profile (Sennheiser EW-DX) and band preset (UK UHF PMSE 470–608) selected, with tuning ranges, spacing, IM-guard and third/fifth-order intermodulation options](docs/screenshots/coordination.png)
 
 ## Inventory, Allocate & Deploy
 
-The suite carries a plan end to end:
+The suite takes a plan all the way through:
 
 ![RFutils Inventory tab: an equipment list with Label/talent, Profile, Vendor, Model, Band, Role, Qty and coordinate columns, plus Add item / Import from live devices](docs/screenshots/inventory.png)
 
-- **Inventory** — build your equipment list by hand or import it from live-discovered devices;
-  it's persisted server-side (`~/.rfutils/inventory.json`) and drives how many channels coordination
+- **Inventory**: build your equipment list by hand or import it from live-discovered devices.
+  It's kept server-side (`~/.rfutils/inventory.json`) and decides how many channels coordination
   places. See [`inventory/store.ts`](packages/server/src/inventory/store.ts).
-- **Allocation** — pair coordinated frequencies with talent / inventory channels (auto-populated
+- **Allocation**: pair coordinated frequencies with talent / inventory channels (filled in
   from the last coordination, or coordinated straight from the inventory), then export any format.
-- **Deployment** — bind allocations to live receiver channels and program them, or export files for
+- **Deployment**: bind allocations to live receiver channels and program them, or export files for
   offline programming. Live programming uses Shure command strings (`SET … FREQUENCY`) and is
-  **dry-run by default** — it shows the exact strings before anything is sent.
-  ⚠️ Live programming is experimental and untested against hardware; only Shure command-strings
-  channels are live-programmable (others export). Verify against your receiver's Command Strings PDF
-  before sending. See [`programming/shureProgrammer.ts`](packages/server/src/programming/shureProgrammer.ts).
+  **dry-run by default**, so it shows you the exact strings before anything is sent.
+  ⚠️ Live programming is experimental and untested against hardware, and only Shure
+  command-strings channels can be programmed live (others export). Check against your receiver's
+  Command Strings PDF before sending. See [`programming/shureProgrammer.ts`](packages/server/src/programming/shureProgrammer.ts).
 
 ![RFutils Deployment tab: allocated frequencies bound to live device channels with a dry-run showing the exact Shure command strings](docs/screenshots/deployment.png)
 
@@ -479,32 +485,30 @@ The suite carries a plan end to end:
 
 [**companion-module-rfutils**](https://github.com/stoatworks-labs/companion-module-rfutils) is a [Bitfocus Companion](https://bitfocus.io/companion) connection module for this app.
 
-Puts the rack's battery, RF and audio state on a Stream Deck — a monitor tile
-per channel, escalating amber to red, with **blue when a channel stops
-reporting**.
+It puts the rack's battery, RF and audio state on a Stream Deck: a monitor tile per channel,
+going amber then red, and **blue when a channel stops reporting**.
 
-That blue matters: every threshold goes dark rather than showing a remembered
-value when a receiver goes quiet, so without it a dead receiver would look
-exactly like a healthy one. Frequency programming through the module is a dry
-run unless explicitly ticked.
+The blue matters. When a receiver goes quiet, every threshold goes dark rather than showing a
+remembered value, so without it a dead receiver would look just like a healthy one. Frequency
+programming through the module is a dry run unless you explicitly tick it.
 
-It is not in the official Companion module store — install it via
+It isn't in the official Companion module store, so install it through
 **Settings → Developer modules path**.
 
 ## Windows SmartScreen & Defender Firewall
 
-macOS builds are **Developer ID-signed and notarised by Apple** — they open
-normally, with no Gatekeeper warning and no quarantine step. The Windows
-binaries are **not** code-signed, so Windows still warns you the first time.
+macOS builds are **Developer ID-signed and notarised by Apple**, so they open normally, with no
+Gatekeeper warning and no quarantine step. The Windows binaries **aren't** code-signed, so Windows
+still warns you the first time.
 
-- **Windows** — SmartScreen shows *"Windows protected your PC"* →
+- **Windows**: SmartScreen shows *"Windows protected your PC"* →
   **More info** → **Run anyway**.
-- **Windows Defender Firewall** — first launch pops *"Allow RFutils to communicate on
-  these networks"*. Tick **Private** (and **Domain** on a managed network) — RFutils
+- **Windows Defender Firewall**: first launch pops up *"Allow RFutils to communicate on
+  these networks"*. Tick **Private** (and **Domain** on a managed network), because RFutils
   needs it to serve the web UI and receive receiver telemetry and AES67 audio. Deny it
-  and Monitor will find no receivers; the offline Convert and Coordinate tools still
+  and Monitor won't find any receivers, though the offline Convert and Coordinate tools still
   work.
-- **Linux** — no signing gate.
+- **Linux**: no signing gate.
 
 Per-artifact steps, self-signing, checksum verification and the Defender Firewall reset
 procedure: **[docs/UNSIGNED.md](docs/UNSIGNED.md)**.
