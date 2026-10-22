@@ -18,6 +18,14 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 5
+    # Majors that cannot install yet (checked 2026-10-22). Each one fails `npm ci`
+    # with ERESOLVE, so its PR could never go green. Delete a line once its
+    # blocker lifts and Dependabot offers the major again.
+    ignore:
+      # typescript-eslint 8.72 peers typescript <6.1.0, so TypeScript 7 is out
+      # until it widens that range.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
     groups:
       # Peer-locked families move together, whatever the bump size. A major that
       # arrives for one member without the others is how react 19 shipped against
