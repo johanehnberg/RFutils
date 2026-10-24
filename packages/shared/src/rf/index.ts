@@ -47,12 +47,14 @@ import {
   WISYCOM_MODES,
   WISYCOM_TUNING_STEP_KHZ,
 } from './wisycom.js';
+import { AKG_WMS470_BANDS, AKG_WMS470_MODES } from './akg.js';
 
 export * from './types.js';
 export * from './shure.js';
 export * from './sennheiser.js';
 export * from './lectrosonics.js';
 export * from './wisycom.js';
+export * from './akg.js';
 
 /** Everything the coordination engine needs to know about one product's RF. */
 export interface ProductRfData {
@@ -139,6 +141,12 @@ export const PRODUCT_RF_DATA: Record<string, ProductRfData> = {
     bandVariants: WISYCOM_MCR54_BANDS,
     modes: WISYCOM_MODES,
     tuningStepKhz: WISYCOM_TUNING_STEP_KHZ,
+  },
+
+  'akg-wms470': {
+    bandVariants: AKG_WMS470_BANDS,
+    modes: AKG_WMS470_MODES,
+    tuningStepKhz: 25,
   },
 };
 

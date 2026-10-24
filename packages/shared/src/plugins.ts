@@ -158,6 +158,7 @@ const RAW_PLUGINS: ProductPlugin[] = [
   { id: 'dpa-nseries', manufacturer: 'DPA', model: 'N-Series (N-DR1)', category: 'mic', tuningStepKhz: 25, occupiedBandwidthKhz: 200, recommendedSpacingMhz: 0.35, defaultBandPresetId: 'uk-uhf-core', bands: [{ startMhz: 470, endMhz: 870 }], verified: false, notes: '470–870 MHz. DPA Audio Controller (PC/Mac) for control/monitoring + frequency management. Proprietary; coordinate + export.' },
   { id: 'deity-theos', manufacturer: 'Deity', model: 'Theos', category: 'mic', tuningStepKhz: 25, occupiedBandwidthKhz: 200, recommendedSpacingMhz: 0.4, defaultBandPresetId: 'uk-uhf-core', bands: [{ startMhz: 550, endMhz: 663 }], verified: false, notes: '550–663 MHz (region-dependent). Control + its own coordination via the Sidus Audio phone app (app/Bluetooth) — not an open network; coordinate + export.' },
   { id: 'audiotechnica-5000', manufacturer: 'Audio-Technica', model: '5000 series', category: 'mic', tuningStepKhz: 25, occupiedBandwidthKhz: 200, recommendedSpacingMhz: 0.4, defaultBandPresetId: 'uk-uhf-core', verified: false },
+  { id: 'akg-wms470', manufacturer: 'AKG', model: 'WMS470', category: 'mic', tuningStepKhz: 25, occupiedBandwidthKhz: 200, recommendedSpacingMhz: 0.4, defaultBandPresetId: 'uk-uhf-core', verified: false, notes: 'Analog FM; precalculated IM-safe channel groups.' },
 ];
 
 /**
