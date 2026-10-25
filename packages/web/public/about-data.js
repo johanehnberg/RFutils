@@ -12,7 +12,7 @@
 window.STOATWORKS_ABOUT = Object.assign({
   "name": "RFutils",
   "slug": "rfutils",
-  "version": "v0.5.1",
+  "version": "v0.5.2",
   "hook": "RF coordination and radio-mic monitoring",
   "licence": "MIT",
   "guide": "https://stoatworks-labs.com/software/rfutils/guide/",
