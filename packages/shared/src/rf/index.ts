@@ -4,8 +4,8 @@
  * Kept separate from `plugins.ts` so the citations live next to the data and a
  * product's control descriptor stays readable. `plugins.ts` merges these in.
  *
- * Coverage is deliberately partial. Shure, Sennheiser, Lectrosonics and Wisycom
- * have been researched against vendor documentation; the remaining products in
+ * Coverage is deliberately partial. Shure, Sennheiser, Lectrosonics, Wisycom and
+ * AKG have been researched against vendor documentation; the remaining products in
  * the catalog have no entry here and keep their original placeholder numbers,
  * which is why `rfDataFor()` returning `undefined` is a meaningful answer rather
  * than an error — see `UNSOURCED_PRODUCTS`.

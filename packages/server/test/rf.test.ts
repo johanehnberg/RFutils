@@ -118,6 +118,30 @@ describe('sourced RF data', () => {
     expect(nb.spacing.basis).toBe('vendor-doc');
   });
 
+  it('AKG WMS470 IX skips 605.9-614.1 MHz, and the UK’s IX-U does not', () => {
+    const bands = rfDataFor('akg-wms470')?.bandVariants;
+    const ix = findVariant(bands, 'IX')!;
+    const ixu = findVariant(bands, 'IX-U')!;
+    expect(variantContains(ix, 605.9)).toBe(true);
+    expect(variantContains(ix, 610), '605.9-614.1 MHz gap').toBe(false);
+    expect(variantContains(ix, 614.1)).toBe(true);
+    expect(variantContains(ixu, 610)).toBe(true);
+    expect(ixu.regions).toEqual(['UK']);
+  });
+
+  it('AKG WMS470 V-B is 806.125-809.750 MHz', () => {
+    const v = findVariant(rfDataFor('akg-wms470')?.bandVariants, 'V-B');
+    expect(v?.ranges).toEqual([{ startMhz: 806.125, endMhz: 809.75 }]);
+  });
+
+  it('AKG WMS470 spacing is worked out from its channel groups, so it is not verified', () => {
+    const mode = rfDataFor('akg-wms470')!.modes[0]!;
+    expect(mode.minSpacingKhz).toBe(400);
+    expect(mode.spacing.basis).toBe('derived');
+    expect(mode.bandwidth?.basis).toBe('assumed');
+    expect(BUILTIN_PLUGINS.find((p) => p.id === 'akg-wms470')?.verified).toBe(false);
+  });
+
   it('SLX-D needs far more room than the 400 kHz the catalog used to assume', () => {
     const slxd = BUILTIN_PLUGINS.find((p) => p.id === 'shure-slxd')!;
     const ulxd = BUILTIN_PLUGINS.find((p) => p.id === 'shure-ulxd')!;

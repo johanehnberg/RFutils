@@ -44,7 +44,7 @@ never regenerating them to make a failure go away. MicWizard's tests live on as 
 ## 2a. The RF data is sourced, and every number says where it came from
 
 `packages/shared/src/rf/` holds the real tuning ranges, occupied bandwidths and required
-spacings for Shure, Sennheiser, Lectrosonics and Wisycom, quoted from vendor documentation
+spacings for Shure, Sennheiser, Lectrosonics, Wisycom and AKG, quoted from vendor documentation
 with a URL and a retrieval date on each figure. It replaced a catalog in which **every**
 product claimed a flat 200 kHz occupied bandwidth, a 25 kHz raster and a hand-picked
 spacing. Three things that catalog got wrong, and that you must not reintroduce:
@@ -74,7 +74,7 @@ default mode's spacing came straight from the manufacturer. Do not set it by han
 not upgrade a `derived` or `assumed` basis without a source to point at. `UNSOURCED_PRODUCTS`
 lists the products that still carry placeholders, so the gap stays visible.
 
-Coverage is Shure, Sennheiser, Lectrosonics and Wisycom. The rest of the catalog is
+Coverage is Shure, Sennheiser, Lectrosonics, Wisycom and AKG. The rest of the catalog is
 untouched placeholder data and says so.
 
 ## 3. Layout
