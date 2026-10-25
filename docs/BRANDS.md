@@ -26,6 +26,7 @@ JSON. RFutils supports gear at three levels:
 | **MiPro** | ACT series | RCS2.Net over proprietary ACT-BUS | ❌ proprietary | via Dante (ACT-7x) |
 | **Deity** | Theos | Sidus Audio **phone app / Bluetooth** | ❌ not an open network protocol | — |
 | **Audio-Technica** | 5000 series | proprietary | ❌ | — |
+| **AKG** | WMS470 | none (analog; the receiver sets up its transmitters over infrared) | ❌ | — |
 
 **DPA** is intentionally absent: DPA makes microphone **capsules/lavaliers** (which clip onto other
 brands' transmitters), not RF wireless systems, so there's nothing to coordinate, monitor, or

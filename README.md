@@ -435,7 +435,7 @@ UHF core, Ch70, 2.4 GHz …) still covers the separate question of what your lic
 Those numbers come from manufacturer documentation, and the app tells you which is which: each
 figure is labelled *from the manufacturer's documentation*, *calculated from published
 figures*, or *no source — assumed, verify before a show*, with the URL it came from. Shure,
-Sennheiser, Lectrosonics and Wisycom are researched. The rest of the catalogue still has
+Sennheiser, Lectrosonics, Wisycom and AKG are researched. The rest of the catalogue still has
 placeholders, and says so. See [`packages/shared/src/rf/`](packages/shared/src/rf/).
 
 Three consequences worth knowing:

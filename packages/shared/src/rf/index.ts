@@ -4,8 +4,8 @@
  * Kept separate from `plugins.ts` so the citations live next to the data and a
  * product's control descriptor stays readable. `plugins.ts` merges these in.
  *
- * Coverage is deliberately partial. Shure, Sennheiser, Lectrosonics and Wisycom
- * have been researched against vendor documentation; the remaining products in
+ * Coverage is deliberately partial. Shure, Sennheiser, Lectrosonics, Wisycom and
+ * AKG have been researched against vendor documentation; the remaining products in
  * the catalog have no entry here and keep their original placeholder numbers,
  * which is why `rfDataFor()` returning `undefined` is a meaningful answer rather
  * than an error — see `UNSOURCED_PRODUCTS`.
@@ -47,12 +47,14 @@ import {
   WISYCOM_MODES,
   WISYCOM_TUNING_STEP_KHZ,
 } from './wisycom.js';
+import { AKG_WMS470_BANDS, AKG_WMS470_MODES } from './akg.js';
 
 export * from './types.js';
 export * from './shure.js';
 export * from './sennheiser.js';
 export * from './lectrosonics.js';
 export * from './wisycom.js';
+export * from './akg.js';
 
 /** Everything the coordination engine needs to know about one product's RF. */
 export interface ProductRfData {
@@ -139,6 +141,12 @@ export const PRODUCT_RF_DATA: Record<string, ProductRfData> = {
     bandVariants: WISYCOM_MCR54_BANDS,
     modes: WISYCOM_MODES,
     tuningStepKhz: WISYCOM_TUNING_STEP_KHZ,
+  },
+
+  'akg-wms470': {
+    bandVariants: AKG_WMS470_BANDS,
+    modes: AKG_WMS470_MODES,
+    tuningStepKhz: 25,
   },
 };
 
