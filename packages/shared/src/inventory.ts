@@ -15,7 +15,12 @@ export interface InventoryItem {
   label: string;
   vendor: string;
   model: string;
-  /** Band or tuning range label, e.g. "G56" or "470-534". */
+  /**
+   * Band label. When the item's profile has researched band variants this is
+   * the variant code as printed on the unit (e.g. "G56"), which pins the item
+   * to that variant's real frequency range; otherwise a free label, e.g.
+   * "470-534".
+   */
   band: string;
   role: InventoryRole;
   /** Number of RF channels this item needs coordinated (default 1). */
