@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
-import type { ExportFormat } from '@rfutils/shared';
+import type { CoordinationRadio, ExportFormat, FreqRange, ProfileCatalog } from '@rfutils/shared';
 import {
   channelNames,
   defaultCoordinationParams,
   deriveCoordDefaults,
   EXPORT_FORMATS,
+  findMode,
+  findVariant,
 } from '@rfutils/shared';
 import { usePlanStore, type Allocation } from '../planStore.js';
-import { coordinateFrequencies, exportModel, getProfiles } from '../api.js';
+import { coordinateRadioSet, exportModel, getProfiles } from '../api.js';
 import type { JSX } from 'react';
 
 function download(text: string, filename: string, mime: string): void {
@@ -55,28 +57,76 @@ export function AllocationTab(): JSX.Element {
     setError(null);
     try {
       const names = channelNames({ items });
-      const count = names.length;
-      if (count === 0) {
+      if (names.length === 0) {
         setError('No inventory channels flagged for coordination. Add equipment on the Inventory tab.');
         return;
       }
-      // Derive coordination settings from the gear mix (widest spacing, finest
-      // step, most common band) so the request suits the actual equipment.
       const params = defaultCoordinationParams();
+      let catalog: ProfileCatalog | null = null;
       try {
-        const catalog = await getProfiles();
-        const profileIds = items.filter((i) => i.coordinate).map((i) => i.profileId);
-        const derived = deriveCoordDefaults(profileIds, catalog);
-        params.minSpacingMhz = derived.minSpacingMhz;
-        params.stepMhz = derived.stepMhz;
-        const band = derived.bandPresetId
-          ? catalog.bandPresets.find((b) => b.id === derived.bandPresetId)
-          : undefined;
-        if (band) params.ranges = band.ranges;
+        catalog = await getProfiles();
       } catch {
         /* fall back to defaults if the catalog can't be fetched */
       }
-      const res = await coordinateFrequencies(count, params, names);
+
+      // Build one radio per channel, each carrying the band variant it was
+      // assigned on the Inventory tab — its real tunable spectrum, raster,
+      // required spacing and placement strategy. That is what constrains each
+      // channel to its own band instead of one shared preset.
+      const radios: CoordinationRadio[] = [];
+      const rangeKeys = new Map<string, FreqRange>();
+      let nameIdx = 0;
+      for (const item of items) {
+        if (!item.coordinate) continue;
+        const q = Math.max(0, Math.floor(item.quantity) || 0);
+        if (q === 0) continue;
+        const profile = catalog?.profiles.find((p) => p.id === item.profileId);
+        const variant = findVariant(profile?.bandVariants, item.band);
+        const mode = findMode(profile?.modes);
+        if (variant) {
+          for (const r of variant.ranges) {
+            rangeKeys.set(`${r.startMhz}-${r.endMhz}`, { startMhz: r.startMhz, endMhz: r.endMhz });
+          }
+        }
+        for (let i = 0; i < q; i++) {
+          radios.push({
+            name: names[nameIdx++] ?? item.label,
+            tuningRanges: variant?.ranges,
+            tuningStepKhz: variant?.tuningStepKhz ?? profile?.tuningStepKhz,
+            minSpacingMhz: mode ? mode.minSpacingKhz / 1000 : undefined,
+            occupiedBandwidthKhz: mode?.occupiedBandwidthKhz,
+            strategy: mode?.strategy,
+            productId: profile?.id,
+            bandCode: variant?.code,
+            modeId: mode?.id,
+          });
+        }
+      }
+      const variantRanges = [...rangeKeys.values()];
+
+      // Derive the fallback settings from the gear mix (widest spacing, finest
+      // step, most common band) — only what a channel without its own values
+      // needs. When the inventory declares real band variants, the working
+      // ranges are the union of those, so each channel keeps its own band;
+      // otherwise fall back to the most common band preset.
+      if (catalog) {
+        const derived = deriveCoordDefaults(
+          items.filter((i) => i.coordinate).map((i) => i.profileId),
+          catalog
+        );
+        params.minSpacingMhz = derived.minSpacingMhz;
+        params.stepMhz = derived.stepMhz;
+        if (variantRanges.length > 0) {
+          params.ranges = variantRanges;
+        } else {
+          const band = derived.bandPresetId
+            ? catalog.bandPresets.find((b) => b.id === derived.bandPresetId)
+            : undefined;
+          if (band) params.ranges = band.ranges;
+        }
+      }
+
+      const res = await coordinateRadioSet(radios, params);
       setCoordination(res);
       setAllocations(
         res.assigned.map((a) => ({ frequencyMhz: a.frequencyMhz, name: a.name, locked: a.locked }))
