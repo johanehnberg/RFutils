@@ -1,6 +1,46 @@
 import { describe, it, expect } from 'vitest';
 import { builtinCatalog, deriveCoordDefaults } from '@rfutils/shared';
 
+describe('Finland (Traficom) band presets', () => {
+  const { bandPresets } = builtinCatalog();
+  const fi = bandPresets.filter((b) => b.region === 'FI');
+  const ids = fi.map((b) => b.id);
+
+  it('covers the two licensed camera/link bands and seven licence-exempt mic bands', () => {
+    // The 470–694 TV-shared band and the deregulated 863–865 band are the ones a
+    // coordinator reaches for first, so they must be present.
+    expect(ids).toContain('fi-mic-470-694');
+    expect(ids).toContain('fi-mic-863-865');
+    expect(fi.filter((b) => b.licence === 'exempt').length).toBe(7);
+    expect(fi.filter((b) => b.licence === 'required').length).toBe(2);
+  });
+
+  it('records provenance and equipment for every Finnish band', () => {
+    for (const b of fi) {
+      expect(b.source).toBeTruthy();
+      expect(b.retrieved).toBeTruthy();
+      expect(b.equipment?.length).toBeGreaterThan(0);
+    }
+  });
+
+  it('states a power limit only on the licence-exempt mic bands (as the source does)', () => {
+    // Traficom publishes per-band power caps for mics only; the camera/link
+    // bands are licensed per-event and carry no fixed figure, so they must not
+    // claim one.
+    for (const b of fi) {
+      const isMic = b.licence === 'exempt';
+      expect(b.maxPowerMw === undefined).toBe(!isMic);
+      if (isMic) {
+        expect(b.maxPowerMw).toBeGreaterThan(0);
+        expect(b.powerBasis).toBeTruthy();
+      }
+    }
+    // The band shared with terrestrial TV must flag its coexistence duty.
+    const tv = fi.find((b) => b.id === 'fi-mic-470-694');
+    expect(tv?.notes).toMatch(/television|TV/i);
+  });
+});
+
 describe('equipment profile catalog', () => {
   const { profiles, bandPresets } = builtinCatalog();
 

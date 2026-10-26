@@ -64,13 +64,45 @@ export interface EquipmentProfile {
   notes?: string;
 }
 
+/**
+ * The regulatory region a band preset's ranges assume. Coarse by design — a
+ * preset is "what your licence allows in a region", so 'UK' and 'US' are
+ * single-country jurisdictions just as much as 'EU' or 'Global'. Country codes
+ * are added as real, sourced templates are added (e.g. 'FI' for the
+ * Traficom-designated Finnish bands).
+ */
+export type Region = 'UK' | 'EU' | 'US' | 'Global' | 'FI';
+
+/** Equipment class a band is designated for, where the regulator distinguishes. */
+export type BandEquipment = 'mic' | 'camera' | 'video-link';
+
+/** Whether a regulatory power figure is stated as ERP or EIRP. */
+export type PowerBasis = 'ERP' | 'EIRP';
+
 export interface BandPreset {
   id: string;
   name: string;
   /** Regulatory region this preset's ranges assume. */
-  region: 'UK' | 'EU' | 'US' | 'Global';
+  region: Region;
   ranges: { startMhz: number; endMhz: number }[];
   notes?: string;
+  /**
+   * Whether a radio licence is needed to transmit in this band. `exempt`
+   * bands are licence-exempt (e.g. every Finnish wireless-mic band);
+   * `required` bands need a licence from the national regulator. Absent where
+   * the preset does not record it.
+   */
+  licence?: 'exempt' | 'required';
+  /** Equipment the regulator designates this band for, where it distinguishes. */
+  equipment?: BandEquipment[];
+  /** Maximum effective radiated power, mW, where the regulator sets one. */
+  maxPowerMw?: number;
+  /** Whether `maxPowerMw` is stated as ERP or EIRP. */
+  powerBasis?: PowerBasis;
+  /** Where the designation came from — a regulator page or a regulation. */
+  source?: string;
+  /** ISO date `source` was read. */
+  retrieved?: string;
 }
 
 /**
@@ -78,6 +110,11 @@ export interface BandPreset {
  * verify against your PMSE/FCC authorisation. UHF cores are given as broad
  * spans; narrow them to your cleared DTT gaps in the Coordination form.
  */
+
+/** The Traficom page these Finnish band designations are quoted from. */
+const TRAFICOM =
+  'https://www.traficom.fi/fi/radioluvat-ja-taajuudet/radiotaajuuksien-kaytto/langattomien-kameroiden-videolinkkien-ja-mikrofonien-taajuudet';
+
 export const BAND_PRESETS: BandPreset[] = [
   {
     id: 'uk-ch38',
@@ -113,6 +150,140 @@ export const BAND_PRESETS: BandPreset[] = [
     region: 'Global',
     ranges: [{ startMhz: 2400, endMhz: 2483.5 }],
     notes: 'Licence-exempt 2.4 GHz (e.g. Shure GLX-D). Usually auto-coordinated by the system.',
+  },
+
+  // ——— Finland (Traficom) ———
+  // Designated per the Traficom page and Määräys 15 AW/2026M (effective
+  // 31 Mar 2026). Wireless-mic use is licence-exempt in every band below;
+  // wireless-camera / video-link use needs a Traficom licence. In 470–694 the
+  // band is primarily terrestrial TV, so clear it against local transmitters
+  // with Traficom's microphone frequency search service before relying on it.
+  //
+  // ⚠️ DRAFT MODEL — the flat per-band BandPreset shape below is provisional
+  // and does not match how licences actually work. Real-world licences do not
+  // follow this format: a user picks a *regulatory domain* (a country/regulator),
+  // which is made up of several frequency *areas*, each either licensed (and the
+  // licence depends on the occasion — a one-off event vs. a permanent install) or
+  // free-to-use. This preset list does not express that domain→areas structure,
+  // and `licence: 'required'` is too coarse to capture "licensed per occasion".
+  // Revisit the model with upstream before treating it as the design — see
+  // docs/NOTES.md.
+  {
+    id: 'fi-link-2320-2400',
+    name: 'FI camera/video link (2320–2400)',
+    region: 'FI',
+    ranges: [{ startMhz: 2320, endMhz: 2400 }],
+    licence: 'required',
+    equipment: ['camera', 'video-link'],
+    source: TRAFICOM,
+    retrieved: '2026-10-26',
+    notes:
+      'Licence-required, shared-use band for wireless cameras and video links: any frequency may be used, but it must be coordinated with other camera/link users. Licences are generally long-term and valid for several years.',
+  },
+  {
+    id: 'fi-link-2200-2290',
+    name: 'FI camera/video link (2200–2290, event)',
+    region: 'FI',
+    ranges: [{ startMhz: 2200, endMhz: 2290 }],
+    licence: 'required',
+    equipment: ['camera', 'video-link'],
+    source: TRAFICOM,
+    retrieved: '2026-10-26',
+    notes:
+      'Licence-required band for wireless cameras and video links used at events; the licence is valid only for the duration of the event concerned.',
+  },
+  {
+    id: 'fi-mic-174-195',
+    name: 'FI mic (174–195)',
+    region: 'FI',
+    ranges: [{ startMhz: 174, endMhz: 195 }],
+    licence: 'exempt',
+    equipment: ['mic'],
+    maxPowerMw: 50,
+    powerBasis: 'ERP',
+    source: TRAFICOM,
+    retrieved: '2026-10-26',
+    notes: 'Licence-exempt wireless-mic band, ≤ 50 mW ERP.',
+  },
+  {
+    id: 'fi-mic-216-225',
+    name: 'FI mic (216–225)',
+    region: 'FI',
+    ranges: [{ startMhz: 216, endMhz: 225 }],
+    licence: 'exempt',
+    equipment: ['mic'],
+    maxPowerMw: 50,
+    powerBasis: 'ERP',
+    source: TRAFICOM,
+    retrieved: '2026-10-26',
+    notes: 'Licence-exempt wireless-mic band, ≤ 50 mW ERP.',
+  },
+  {
+    id: 'fi-mic-470-694',
+    name: 'FI mic (470–694, clear local TV)',
+    region: 'FI',
+    ranges: [{ startMhz: 470, endMhz: 694 }],
+    licence: 'exempt',
+    equipment: ['mic'],
+    maxPowerMw: 50,
+    powerBasis: 'ERP',
+    source: TRAFICOM,
+    retrieved: '2026-10-26',
+    notes:
+      'Licence-exempt, ≤ 50 mW ERP, but 470–694 is designated primarily for terrestrial television and secondarily for mics: use must not cause interference to TV reception. Clear the band against local transmitters and the reserved reportter links (470–478 / 486–494) with Traficom’s microphone frequency search service before use.',
+  },
+  {
+    id: 'fi-mic-821-826',
+    name: 'FI mic (821.5–826)',
+    region: 'FI',
+    ranges: [{ startMhz: 821.5, endMhz: 826 }],
+    licence: 'exempt',
+    equipment: ['mic'],
+    maxPowerMw: 20,
+    powerBasis: 'EIRP',
+    source: TRAFICOM,
+    retrieved: '2026-10-26',
+    notes: 'Licence-exempt, ≤ 20 mW EIRP; body-worn wireless mics ≤ 100 mW EIRP.',
+  },
+  {
+    id: 'fi-mic-826-832',
+    name: 'FI mic (826–832)',
+    region: 'FI',
+    ranges: [{ startMhz: 826, endMhz: 832 }],
+    licence: 'exempt',
+    equipment: ['mic'],
+    maxPowerMw: 100,
+    powerBasis: 'EIRP',
+    source: TRAFICOM,
+    retrieved: '2026-10-26',
+    notes: 'Licence-exempt wireless-mic band, ≤ 100 mW EIRP.',
+  },
+  {
+    id: 'fi-mic-863-865',
+    name: 'FI mic (863–865)',
+    region: 'FI',
+    ranges: [{ startMhz: 863, endMhz: 865 }],
+    licence: 'exempt',
+    equipment: ['mic'],
+    maxPowerMw: 10,
+    powerBasis: 'ERP',
+    source: TRAFICOM,
+    retrieved: '2026-10-26',
+    notes: 'Licence-exempt wireless-mic band, ≤ 10 mW ERP.',
+  },
+  {
+    id: 'fi-mic-1785-1804',
+    name: 'FI mic (1785–1804.8)',
+    region: 'FI',
+    ranges: [{ startMhz: 1785, endMhz: 1804.8 }],
+    licence: 'exempt',
+    equipment: ['mic'],
+    maxPowerMw: 20,
+    powerBasis: 'EIRP',
+    source: TRAFICOM,
+    retrieved: '2026-10-26',
+    notes:
+      'Licence-exempt, ≤ 20 mW EIRP; body-worn wireless mics ≤ 50 mW EIRP, and mics with frequency scanning (SSP) ≤ 50 mW EIRP.',
   },
 ];
 

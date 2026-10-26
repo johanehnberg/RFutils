@@ -121,3 +121,20 @@ archived (releases untouched). What the parity audit found, and what landed:
 
 None of the Monitor work has run on real receivers. Shure `GET 1 ALL` still asks only channel 1
 (same in MicWizard) — worth checking against a ULXD4Q, which has four.
+
+**2026-10-26 — Finland (Traficom) regulatory template — DRAFT, model open for discussion.**
+Added the Finnish bands from Traficom's "Frequencies for wireless cameras, video links and
+microphones" page as `BandPreset`s in `profiles.ts` (`region: 'FI'`, added to the `Region`
+type): two licensed camera/video-link bands (2320–2400 long-term shared; 2200–2290 event-only)
+and seven licence-exempt mic bands (174–195, 216–225, 470–694, 821.5–826, 826–832, 863–865,
+1785–1804.8), each with its power cap and a Traficom source citation. `BandPreset` gained
+optional `licence` / `equipment` / `maxPowerMw` / `powerBasis` / `source` / `retrieved` fields
+for this.
+
+**The flat per-band preset shape is provisional and does not match how licences actually work.**
+Real licences do not follow this format: a user picks a *regulatory domain* (a country/regulator)
+made up of several frequency *areas*, each either licensed (per the occasion — a one-off event vs.
+a permanent install) or free-to-use. That domain→areas structure, and "licensed per occasion",
+are not what the preset list expresses (`licence: 'required'` is too coarse to capture them).
+**This needs to be discussed with upstream before the model is treated as the design.** Tracked
+on the `finland-band-presets` draft branch.
