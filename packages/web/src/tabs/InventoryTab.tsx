@@ -130,19 +130,22 @@ function InventoryRow({
       model: p.model,
       role: p.category === 'iem' ? 'iem' : p.category === 'mic' ? 'mic' : 'other',
     };
-    if (p.bandVariants?.length) patch.band = '';
+    // Keep a band that is one of the new model's, else make the user pick.
+    if (p.bandVariants?.length) patch.band = findVariant(p.bandVariants, item.band)?.code ?? '';
     onChange(patch);
   };
   const variants = profiles.find((p) => p.id === item.profileId)?.bandVariants ?? [];
+  // Coordination matches band codes ignoring case, so show "g56" as G56 too.
+  const picked = findVariant(variants, item.band);
   const bandCell = variants.length > 0 ? (
     <select
       className="cell cell--sm"
-      value={item.band}
+      value={picked?.code ?? item.band}
       onChange={(e) => onChange({ band: e.target.value })}
       title="Bands this model is sold in — pick the one you own"
     >
       <option value="">— pick the band you own —</option>
-      {item.band && !findVariant(variants, item.band) && (
+      {item.band && !picked && (
         <option value={item.band}>{item.band} (as entered)</option>
       )}
       {variants.map((v) => (
